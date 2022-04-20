@@ -1,0 +1,8 @@
+### get_course
+
+POST http://{{location}}/get_course
+Content-Type: application/x-www-form-urlencoded
+
+uid=201806061201&password=~~&year=2018&term=1
+
+###
