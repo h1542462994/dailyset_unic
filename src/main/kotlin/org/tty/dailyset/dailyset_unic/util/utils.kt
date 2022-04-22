@@ -27,6 +27,14 @@ fun byte2Hex(bytes: ByteArray): String {
     return stringBuilder.toString()
 }
 
+fun hex2Byte(hex: String): ByteArray {
+    val bytes = ByteArray(hex.length / 2)
+    for (i in hex.indices step 2) {
+        bytes[i / 2] = Integer.parseInt(hex.substring(i, i + 2), 16).toByte()
+    }
+    return bytes
+}
+
 fun anyTextEmpty(vararg texts: String?): Boolean {
     return texts.any { it.isNullOrEmpty() }
 }
