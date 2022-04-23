@@ -4,6 +4,7 @@ option java_multiple_files = true;
 option java_package = "org.tty.dailyset.dailyset_unic.grpc";
 option java_outer_classname = "HelloWorldProto";
 
+
 // The greeting service definition.
 service Simple {
     rpc SayHello(HelloRequest) returns (HelloReply) {}
@@ -17,4 +18,5 @@ message HelloRequest {
 // The response message containing the greetings
 message HelloReply {
     string message = 1;
+
 }
