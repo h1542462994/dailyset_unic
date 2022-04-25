@@ -83,6 +83,9 @@ dependencies {
     implementation("com.github.marcoferrer.krotoplus:kroto-plus-coroutines:${krotoPlusVersion}")
     implementation("com.github.marcoferrer.krotoplus:kroto-plus-message:${krotoPlusVersion}")
 
+    implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0")
+    implementation("org.mybatis:mybatis:3.5.7")
+
 
     runtimeOnly("mysql:mysql-connector-java")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -106,9 +109,9 @@ tasks.withType<ProcessResources> {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-//tasks.getByName("clean").apply {
-//    delete(protobuf.protobuf.generatedFilesBaseDir)
-//}
+tasks.getByName("clean").apply {
+    delete(protobuf.protobuf.generatedFilesBaseDir)
+}
 
 protobuf {
     protoc {

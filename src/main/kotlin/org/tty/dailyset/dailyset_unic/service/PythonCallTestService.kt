@@ -17,11 +17,12 @@ class PythonCallTestService {
 
     private val os = System.getProperty("os.name").lowercase(Locale.getDefault())
 
+    @Deprecated("not support yet")
     fun getCourse(uid: String, password: String, year: Int, term: Int): LineResult {
         var reader: BufferedReader ?= null
 
         val result: LineResult = try {
-            val inputArgs = arrayOf<String>(
+            val inputArgs = arrayOf(
                 environmentVars.pythonPath,
                 environmentVars.scriptPath,
                 uid,

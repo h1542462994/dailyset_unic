@@ -14,8 +14,7 @@ CREATE DATABASE IF NOT EXISTS `dailyset_cloud`
 
 USE `dailyset_cloud`;
 
-
-# create table `ticket` dsl
+# create table `unic_ticket` dsl
 # ticket is a binder for student account
 CREATE TABLE IF NOT EXISTS `unic_ticket`(
     `ticket_id` VARCHAR(64) UNIQUE NOT NULL,
@@ -26,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `unic_ticket`(
 );
 
 #region table of time and daily_set
-# create table `term_duration` dsl
+# create table `unic_term_duration` dsl
 CREATE TABLE IF NOT EXISTS `unic_time_duration`(
     `time_duration_id` VARCHAR(64) UNIQUE NOT NULL,
     `start_date` DATE NOT NULL,
@@ -36,14 +35,14 @@ CREATE TABLE IF NOT EXISTS `unic_time_duration`(
     PRIMARY KEY (`time_duration_id`)
 );
 
-# create table `daily_table` dsl
+# create table `unic_daily_table` dsl
 CREATE TABLE IF NOT EXISTS `unic_daily_table`(
     `uid` VARCHAR(64) NOT NULL,
     `name` VARCHAR(64) NOT NULL,
     PRIMARY KEY (`uid`)
 );
 
-# create table `daily_row` dsl
+# create table `unic_daily_row` dsl
 CREATE TABLE IF NOT EXISTS `unic_daily_row`(
     `uid` VARCHAR(64) NOT NULL,
     `current_index` INT NOT NULL,
@@ -53,16 +52,57 @@ CREATE TABLE IF NOT EXISTS `unic_daily_row`(
     PRIMARY KEY (`uid`)
 );
 
-# create table `daily_cell` dsl
+# create table `unic_daily_cell` dsl
 CREATE TABLE IF NOT EXISTS `unic_daily_cell`(
     `uid` VARCHAR(64) NOT NULL,
     `current_index` INT NOT NULL,
     `start` TIME NOT NULL,
     `end` TIME NOT NULL,
     `normal_type` INT NOT NULL,
-    `serial_index` INT NOT NULL
+    `serial_index` INT NOT NULL,
+    PRIMARY KEY (`uid`)
 );
+
+
 #endregion
 
+#region table of student and course
+# create table `unic_student_info` dsl
+CREATE TABLE IF NOT EXISTS `unic_student_info`(
+      `uid` VARCHAR(64) NOT NULL,
+      `department_name` VARCHAR(256) NOT NULL,
+      `class_name` VARCHAR(256) NOT NULL,
+      `name` VARCHAR(64) NOT NULL,
+      `grade` INT NOT NULL,
+      PRIMARY KEY (`uid`)
+);
+
+# create table `unic_course_info` dsl
+CREATE TABLE IF NOT EXISTS `unic_courses`(
+    `course_id` VARCHAR(64) NOT NULL,
+    `year` INT NOT NULL,
+    `period_code` INT NOT NULL,
+    `name` VARCHAR(256) NOT NULL,
+    `campus` VARCHAR(256) NOT NULL,
+    `location` VARCHAR(256) NOT NULL,
+    `teacher` VARCHAR(256) NOT NULL,
+    `weeks` VARCHAR(256) NOT NULL,
+    `week_day` INT NOT NULL,
+    `section_start` INT NOT NULL,
+    `section_end` INT NOT NULL,
+    `digest` VARCHAR(256) NOT NULL,
+    PRIMARY KEY (`course_id`),
+    INDEX `index_digest` (`digest`)
+);
+
+# create table `unic_course_student_bind` dsl
+CREATE TABLE IF NOT EXISTS `unic_course_student_bind`(
+    `course_id` VARCHAR(64) NOT NULL,
+    `uid` VARCHAR(64) NOT NULL,
+    PRIMARY KEY (`course_id`, `uid`),
+    INDEX `index_course_id` (`course_id`),
+    INDEX `index_uid` (`uid`)
+);
+#endregion
 
 

@@ -71,6 +71,7 @@ class EncryptProvider {
         val raw = originalKey.encoded
         // generate aes key
         val key = SecretKeySpec(raw, AES)
+        this.key = key
     }
 
 

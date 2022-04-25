@@ -18,6 +18,7 @@ class IndexController {
         return "hello ?dailyset_unic?"
     }
 
+    @Deprecated("not supported yet.")
     @RequestMapping("/get_course")
     fun testGetCourse(getCourseReq: GetCourseReq): LineResult {
         val uid = getCourseReq.uid!!

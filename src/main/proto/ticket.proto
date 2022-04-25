@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "org.tty.dailyset.dailyset_unic.grpc";
+option java_outer_classname = "TicketProto";
+
+service TicketService {
+    // bind ticket
+    rpc bind(TicketRequest) returns (TicketResponse) {}
+}
+
+message TicketRequest {
+    string uid = 1;
+    string password = 2;
+}
+
+message TicketResponse {
+    bool success = 1;
+    Ticket ticket = 2;
+}
+
+message Ticket {
+    reserved 3;
+
+    string ticketId = 1;
+    string uid = 2;
+    enum TicketStatus {
+        Initialized = 0;
+        Checked = 1;
+        Failure = 2;
+    }
+    TicketStatus status = 4;
+}
