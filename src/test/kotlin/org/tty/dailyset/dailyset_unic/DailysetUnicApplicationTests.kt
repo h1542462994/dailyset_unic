@@ -56,7 +56,7 @@ class DailysetUnicApplicationTests {
     @Test
     fun testTickBind() {
         val uid = "201806061201"
-        val password = "~~~~~~"
+        val password = "~~"
         val ticketCoroutineStub = TicketServiceCoroutineGrpc.newStub(testBeanFactory.getChannel())
         runBlocking {
             val result = ticketCoroutineStub.bind(request = TicketRequest {

@@ -1,12 +1,14 @@
 package org.tty.dailyset.dailyset_unic.bean
 
+import kotlinx.serialization.Serializable
 import org.tty.dailyset.dailyset_unic.bean.ResponseCodes.fail
 import org.tty.dailyset.dailyset_unic.bean.ResponseCodes.success
 
+@Serializable
 data class Responses<T>(
     val code: Int,
     val message: String,
-    val data: T?
+    val data: T? = null
 ) {
     companion object {
         /**

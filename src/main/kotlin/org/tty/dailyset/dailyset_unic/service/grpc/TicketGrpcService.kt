@@ -21,4 +21,6 @@ class TicketGrpcService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
     override suspend fun bind(request: TicketRequest): TicketResponse {
         return ticketService.bind(request)
     }
+
+
 }

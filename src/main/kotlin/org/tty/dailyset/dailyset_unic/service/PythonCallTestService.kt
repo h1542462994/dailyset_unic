@@ -1,6 +1,7 @@
 package org.tty.dailyset.dailyset_unic.service
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.tty.dailyset.dailyset_unic.bean.LineResult
@@ -37,7 +38,7 @@ class PythonCallTestService {
                 Charset.forName("utf-8")
             }
             reader = process.inputStream.bufferedReader(charset)
-            val resultEntity = Json.parseToJsonElement(reader.readText())
+            val resultEntity = Json.parseToJsonElement( reader.readText())
             LineResult(success = true, result = resultEntity)
         } catch (e: Exception) {
             LineResult(success = false, result =  e.message?:"")

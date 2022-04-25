@@ -15,6 +15,7 @@ plugins {
     kotlin("jvm") version "1.6.10"
     kotlin("plugin.spring") version "1.6.10"
     id("com.google.protobuf") version "0.8.18"
+    kotlin("plugin.serialization") version "1.6.10"
 }
 
 group = "org.tty.dailyset"

@@ -1,8 +1,11 @@
 package org.tty.dailyset.dailyset_unic.bean.interact
 
+import kotlinx.serialization.Serializable
+
 /**
  * the collection of the python course, includes year, term and list of [PythonCourses]
  */
+@Serializable
 data class PythonCourseCollection(
     /**
      * **year**, the year of the course recorded.
@@ -15,5 +18,5 @@ data class PythonCourseCollection(
     /**
      * **courses**
      */
-    val courses: List<PythonCourses>
+    val courses: PythonCourses
 )

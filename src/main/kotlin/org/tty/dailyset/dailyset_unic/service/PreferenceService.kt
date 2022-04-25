@@ -7,6 +7,7 @@ package org.tty.dailyset.dailyset_unic.service
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.tty.dailyset.dailyset_unic.bean.annotation.DbDirect
 import org.tty.dailyset.dailyset_unic.bean.enums.PreferenceName
 import org.tty.dailyset.dailyset_unic.mapper.PreferenceMapper
 import org.tty.dailyset.dailyset_unic.util.InitSaver
@@ -24,6 +25,7 @@ class PreferenceService {
     /**
      * get the stored preference value or get the [PreferenceName.defaultValue] if not found.
      */
+    @DbDirect
     private fun getValueOrDefault(preferenceName: PreferenceName): String {
         val default = preferenceName.defaultValue
         val preference = preferenceMapper.findPreference(preferenceName.value)
@@ -34,6 +36,7 @@ class PreferenceService {
     /**
      * save the preference value.
      */
+    @DbDirect
     private fun setValue(preferenceName: PreferenceName, value: String): Boolean {
         val preference = preferenceMapper.findPreference(preferenceName.value)
         val result: Int = if (preference == null) {

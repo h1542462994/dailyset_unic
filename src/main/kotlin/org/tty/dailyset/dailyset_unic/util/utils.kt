@@ -7,7 +7,10 @@ package org.tty.dailyset.dailyset_unic.util
 
 import okhttp3.internal.and
 import java.io.File
-import java.util.UUID
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
+import java.util.*
 
 fun File.child(name: String): File = File(this, name)
 
@@ -55,3 +58,15 @@ fun getToken(auth: String): String?{
     }
 }
 
+
+fun md5(text: String): String {
+    val messageDigest: MessageDigest
+    try {
+        messageDigest = MessageDigest.getInstance("MD5")
+        messageDigest.update(text.toByteArray(StandardCharsets.UTF_8))
+        return byte2Hex(messageDigest.digest())
+    } catch (e: NoSuchAlgorithmException) {
+        e.printStackTrace()
+    }
+    return ""
+}

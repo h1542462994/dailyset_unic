@@ -13,4 +13,21 @@ class UnicCourses(
     val sectionStart: Int,
     val sectionEnd: Int,
     val digest: String
-)
+) {
+    fun copy(courseId: String): UnicCourses {
+        return UnicCourses(
+            courseId,
+            year,
+            periodCode,
+            name,
+            campus,
+            location,
+            teacher,
+            weeks,
+            weekDay,
+            sectionStart,
+            sectionEnd,
+            digest
+        )
+    }
+}
