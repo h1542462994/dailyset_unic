@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.tty.dailyset.dailyset_unic.bean.CourseUpdateItem
 import org.tty.dailyset.dailyset_unic.bean.annotation.DbDirect
+import org.tty.dailyset.dailyset_unic.bean.converters.toStandardString
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicCourseSimple
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicCourseStudentBind
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicCourses
@@ -16,12 +17,11 @@ import org.tty.dailyset.dailyset_unic.mapper.UnicCourseStudentBindMapper
 import org.tty.dailyset.dailyset_unic.mapper.UnicCoursesMapper
 import org.tty.dailyset.dailyset_unic.mapper.UnicStudentInfoMapper
 import org.tty.dailyset.dailyset_unic.util.Diff
-import org.tty.dailyset.dailyset_unic.util.nowDisplay
 import org.tty.dailyset.dailyset_unic.util.uuid
 import java.time.LocalDateTime
 
 @Service
-class UnicStudentAndCourseService {
+class UnicCourseComplexService {
     @Autowired
     private lateinit var unicStudentInfoMapper: UnicStudentInfoMapper
 
@@ -31,7 +31,7 @@ class UnicStudentAndCourseService {
     @Autowired
     private lateinit var unicCourseStudentBindMapper: UnicCourseStudentBindMapper
 
-    private val logger = LoggerFactory.getLogger(UnicStudentAndCourseService::class.java)
+    private val logger = LoggerFactory.getLogger(UnicCourseComplexService::class.java)
 
 
     @DbDirect
@@ -63,7 +63,7 @@ class UnicStudentAndCourseService {
                 val binds = added.map { UnicCourseStudentBind(it.courseId, uid) }
                 unicCourseStudentBindMapper.addUnicCourseStudentBindBatch(binds)
             }
-            logger.info("[${nowDisplay()}](${uid},${yearPeriod.year},${yearPeriod.periodCode.code})+${added.size}")
+            logger.info("[${LocalDateTime.now().toStandardString()}](${uid},${yearPeriod.year},${yearPeriod.periodCode.code})+${added.size}")
             CourseUpdateResp(true, updateItems)
         } else {
             // calculate diff
@@ -93,7 +93,7 @@ class UnicStudentAndCourseService {
                 }.courseId }, uid)
             }
 
-            logger.info("[${nowDisplay()}](${uid},${yearPeriod.year},${yearPeriod.periodCode.code})+${added.size}-${removed.size}~${diff.sames.size}")
+            logger.info("[${LocalDateTime.now().toStandardString()}](${uid},${yearPeriod.year},${yearPeriod.periodCode.code})+${added.size}-${removed.size}~${diff.sames.size}")
             CourseUpdateResp(false, updateItems)
         }
     }

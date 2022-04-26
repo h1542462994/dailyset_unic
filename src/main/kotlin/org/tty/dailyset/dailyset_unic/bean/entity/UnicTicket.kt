@@ -17,5 +17,8 @@ data class UnicTicket(
     val password: String,
     val status: Int
 ) {
+    fun copy(status: Int): UnicTicket {
+        return UnicTicket(ticketId, uid, password, status)
+    }
     constructor(ticketId: String, uid: String, password: String, status: UnicTicketStatus) : this(ticketId, uid, password, status.value)
 }

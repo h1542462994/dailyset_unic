@@ -42,5 +42,19 @@ enum class PeriodCode(val code: Int) {
     /**
      * 暑假 summer vacation
      */
-    SummerVacation(14)
+    SummerVacation(14);
+
+    fun toTerm(): Int {
+        return when(this) {
+            FirstTerm -> 1
+            SecondTerm -> 2
+            else -> 0
+        }
+    }
+
+    companion object {
+        fun from(code: Int): PeriodCode {
+            return values().firstOrNull { it.code == code } ?: UnSpecified
+        }
+    }
 }

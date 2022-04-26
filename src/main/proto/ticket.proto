@@ -28,6 +28,7 @@ message Ticket {
         Initialized = 0;
         Checked = 1;
         Failure = 2;
+        PasswordFailure = 3;
     }
     TicketStatus status = 4;
 }

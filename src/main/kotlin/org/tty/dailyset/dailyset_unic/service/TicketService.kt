@@ -35,7 +35,7 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
         val ticket = UnicTicket(ticketId, request.uid, encryptedPassword, status = UnicTicketStatus.Initialized)
         val result = unicTicketMapper.addUnicTicket(ticket)
         return if (result > 0) {
-            postBind(ticket)
+            pushTaskOfNewTicket(ticket)
             TicketResponse {
                 success = true
                 this.ticket = ticket.toGrpcTicket()
@@ -48,13 +48,24 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
         }
     }
 
-    private fun postBind(ticket: UnicTicket) {
+    private fun pushTaskOfNewTicket(ticket: UnicTicket) {
         courseFetchCollector.pushTaskOfNewTicket(ticket)
     }
 
     @DbDirect
     fun updateTicketStatus(ticketId: String, status: UnicTicketStatus): Int {
         return unicTicketMapper.updateStatusByTicketId(ticketId, status.value)
+    }
+
+    @DbDirect
+    fun findUnicTicketsByAvailableStatus(): List<UnicTicket> {
+        return unicTicketMapper.findUnicTicketsByAvailableStatus()
+    }
+
+    fun updateTicketStatusBatch(unicTickets: List<UnicTicket>): Int {
+        return unicTickets.groupBy { it.status }.map {
+            unicTicketMapper.updateStatusBatchByTicketIds(it.value.map { unicTicket -> unicTicket.ticketId }, it.key)
+        }.sum()
     }
 
 }

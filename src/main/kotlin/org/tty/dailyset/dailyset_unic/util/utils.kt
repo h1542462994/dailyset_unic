@@ -10,7 +10,9 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -73,6 +75,11 @@ fun md5(text: String): String {
     return ""
 }
 
+@Deprecated("use LocalDateTime.now()")
 fun nowDisplay(): String {
     return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+}
+
+fun epochLocalDateTime(): LocalDateTime {
+    return LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.systemDefault())
 }

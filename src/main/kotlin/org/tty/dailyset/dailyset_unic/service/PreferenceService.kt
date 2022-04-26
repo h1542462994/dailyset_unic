@@ -8,10 +8,17 @@ package org.tty.dailyset.dailyset_unic.service
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.tty.dailyset.dailyset_unic.bean.annotation.DbDirect
-import org.tty.dailyset.dailyset_unic.bean.enums.PreferenceName
-import org.tty.dailyset.dailyset_unic.mapper.PreferenceMapper
-import org.tty.dailyset.dailyset_unic.util.InitSaver
+import org.tty.dailyset.dailyset_unic.bean.converters.stringToLocalDateTime
+import org.tty.dailyset.dailyset_unic.bean.converters.toStandardString
 import org.tty.dailyset.dailyset_unic.bean.enums.PeriodCode
+import org.tty.dailyset.dailyset_unic.bean.enums.PreferenceName
+import org.tty.dailyset.dailyset_unic.bean.interact.YearPeriod
+import org.tty.dailyset.dailyset_unic.mapper.PreferenceMapper
+import org.tty.dailyset.dailyset_unic.mapper.UnicTimeDurationMapper
+import org.tty.dailyset.dailyset_unic.util.InitSaver
+import org.tty.dailyset.dailyset_unic.util.epochLocalDateTime
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 /**
  * service to get and save the preference values.
@@ -21,6 +28,9 @@ class PreferenceService {
 
     @Autowired
     private lateinit var preferenceMapper: PreferenceMapper
+
+    @Autowired
+    private lateinit var unicTimeDurationMapper: UnicTimeDurationMapper
 
     /**
      * get the stored preference value or get the [PreferenceName.defaultValue] if not found.
@@ -62,10 +72,10 @@ class PreferenceService {
      * @see [PeriodCode]
      */
     @DbDirect
-    var unicCurrentCourseTerm: Int by InitSaver(0, onInit = {
-        getValueOrDefault(PreferenceName.UNIC_CURRENT_COURSE_PERIOD_CODE).toInt()
+    var unicCurrentCoursePeriodCode: PeriodCode by InitSaver(PeriodCode.FirstTerm, onInit = {
+        PeriodCode.from(getValueOrDefault(PreferenceName.UNIC_CURRENT_COURSE_PERIOD_CODE).toInt())
     }, onSave = {
-        setValue(PreferenceName.UNIC_CURRENT_COURSE_PERIOD_CODE, it.toString())
+        setValue(PreferenceName.UNIC_CURRENT_COURSE_PERIOD_CODE, it.code.toString())
     })
 
     /**
@@ -78,7 +88,64 @@ class PreferenceService {
         setValue(PreferenceName.UNIC_COURSE_FETCH_RETRY_TIMES, it.toString())
     })
 
-    
+    @DbDirect
+    var unicCurrentPeriodAutoConfig: Boolean by InitSaver(false, onInit = {
+        getValueOrDefault(PreferenceName.UNIC_CURRENT_PERIOD_AUTO_CONFIG).toBoolean()
+    }, onSave = {
+        setValue(PreferenceName.UNIC_CURRENT_PERIOD_AUTO_CONFIG, it.toString())
+    })
+
+    @DbDirect
+    var unicCourseScheduleTaskRateHour: Int by InitSaver(0, onInit = {
+        getValueOrDefault(PreferenceName.UNIC_COURSE_SCHEDULE_TASK_RATE_HOUR).toInt()
+    }, onSave = {
+        setValue(PreferenceName.UNIC_COURSE_SCHEDULE_TASK_RATE_HOUR, it.toString())
+    })
+
+    @DbDirect
+    var unicCourseScheduleLastUpdateTime: LocalDateTime by InitSaver(epochLocalDateTime(), onInit = {
+        stringToLocalDateTime(getValueOrDefault(PreferenceName.UNIC_COURSE_SCHEDULE_LAST_UPDATE_TIME))
+    }, onSave = {
+        setValue(PreferenceName.UNIC_COURSE_SCHEDULE_LAST_UPDATE_TIME, it.toStandardString())
+    })
+
+    /**
+     * **unic_course_schedule_task_parallel_size**,课程表任务并行数量,默认为4
+     */
+    @DbDirect
+    var unicCourseScheduleTaskParallelSize: Int by InitSaver(0, onInit = {
+        getValueOrDefault(PreferenceName.UNIC_COURSE_SCHEDULE_TASK_PARALLEL_SIZE).toInt()
+    }, onSave = {
+        setValue(PreferenceName.UNIC_COURSE_SCHEDULE_TASK_PARALLEL_SIZE, it.toString())
+    })
+
+    /**
+     * the real config year period of course.
+     */
+    val realYearPeriodNow: YearPeriod
+        get() {
+            if (!unicCurrentPeriodAutoConfig) {
+                // if not auto config, then use the unicCurrentCourseYear and unicCurrentCoursePeriodCode
+                return YearPeriod(unicCurrentCourseYear, unicCurrentCoursePeriodCode)
+            } else {
+                // if auto config, then use the config timeDuration
+                val nowDate = LocalDate.now()
+                val timeDuration = unicTimeDurationMapper.findUnicTimeDurationByBetweenStartDateAndEndDate(nowDate)
+                if (timeDuration != null) {
+                    return YearPeriod(timeDuration.year, PeriodCode.from(timeDuration.periodCode))
+                }
+
+                // if not found, use default algorithm
+                val year = nowDate.year
+                val periodCode = if (nowDate.monthValue in 7..12) {
+                    PeriodCode.FirstTerm
+                } else {
+                    PeriodCode.SecondTerm
+                }
+                return YearPeriod(year, periodCode)
+            }
+        }
+
 
 }
 

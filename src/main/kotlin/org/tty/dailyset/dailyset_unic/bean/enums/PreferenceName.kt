@@ -33,5 +33,10 @@ enum class PreferenceName(
      * **unic_course_schedule_last_update_time**,课程表最后更新时间
      */
     UNIC_COURSE_SCHEDULE_LAST_UPDATE_TIME("unic_course_schedule_last_update_time", "1970-01-01 00:00:00"),
+
+    /**
+     * **unic_course_schedule_task_parallel_size**,课程表任务并行数量,默认为4
+     */
+    UNIC_COURSE_SCHEDULE_TASK_PARALLEL_SIZE("unic_course_schedule_task_parallel_size", "4"),
     ;
 }
