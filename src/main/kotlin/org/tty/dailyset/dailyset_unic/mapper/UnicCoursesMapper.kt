@@ -15,6 +15,13 @@ interface UnicCoursesMapper {
     @Select("select * from unic_courses where year = #{year} and period_code = #{periodCode}")
     fun findUnicCourseSimplesByYearAndPeriodCode(year: Int, periodCode: Int): List<UnicCourseSimple>
 
+    @Select("""
+        select * from unic_courses where course_id in (
+            select course_id from unic_course_student_bind where uid = #{uid}
+        ) and year = #{year} and period_code = #{periodCode}
+    """)
+    fun findUnicCourseSimplesByUidAndYearAndPeriodCode(uid: String, year: Int, periodCode: Int): List<UnicCourseSimple>
+
     @Insert("""
         <script>
             insert into unic_courses(

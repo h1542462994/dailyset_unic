@@ -50,6 +50,7 @@ class PreferenceService {
     /**
      * current course year. like 2022
      */
+    @DbDirect
     var unicCurrentCourseYear: Int by InitSaver(0, onInit = {
         getValueOrDefault(PreferenceName.UNIC_CURRENT_COURSE_YEAR).toInt()
     }, onSave = {
@@ -60,6 +61,7 @@ class PreferenceService {
      * current course semester. like 1
      * @see [PeriodCode]
      */
+    @DbDirect
     var unicCurrentCourseTerm: Int by InitSaver(0, onInit = {
         getValueOrDefault(PreferenceName.UNIC_CURRENT_COURSE_PERIOD_CODE).toInt()
     }, onSave = {
@@ -69,11 +71,14 @@ class PreferenceService {
     /**
      * course fetch retry times. like 3
      */
+    @DbDirect
     var unicCourseFetchRetryTimes: Int by InitSaver(0, onInit = {
         getValueOrDefault(PreferenceName.UNIC_COURSE_FETCH_RETRY_TIMES).toInt()
     }, onSave = {
         setValue(PreferenceName.UNIC_COURSE_FETCH_RETRY_TIMES, it.toString())
     })
+
+    
 
 }
 

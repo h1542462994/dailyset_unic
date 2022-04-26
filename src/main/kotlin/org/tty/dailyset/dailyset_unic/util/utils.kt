@@ -10,6 +10,8 @@ import java.io.File
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 fun File.child(name: String): File = File(this, name)
@@ -69,4 +71,8 @@ fun md5(text: String): String {
         e.printStackTrace()
     }
     return ""
+}
+
+fun nowDisplay(): String {
+    return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 }

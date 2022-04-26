@@ -5,15 +5,13 @@
 
 package org.tty.dailyset.dailyset_unic.service.async
 
-import com.fasterxml.jackson.databind.DeserializationConfig
 import kotlinx.coroutines.*
-import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.tty.dailyset.dailyset_unic.bean.Responses
 import org.tty.dailyset.dailyset_unic.bean.converters.select
@@ -23,6 +21,7 @@ import org.tty.dailyset.dailyset_unic.bean.converters.yearPeriods
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicTicket
 import org.tty.dailyset.dailyset_unic.bean.enums.PythonInteractActionType
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus
+import org.tty.dailyset.dailyset_unic.bean.enums.UpdateCode
 import org.tty.dailyset.dailyset_unic.bean.interact.PythonResponseCode
 import org.tty.dailyset.dailyset_unic.bean.interact.PythonResponseCode.loginFail
 import org.tty.dailyset.dailyset_unic.bean.interact.PythonResponseCode.success
@@ -38,6 +37,7 @@ import java.io.BufferedReader
 import java.io.File
 import java.nio.charset.Charset
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.EmptyCoroutineContext
 
 @Component
@@ -75,6 +75,11 @@ class CourseFetchCollector {
         return newFetchCoroutineScope!!
     }
 
+    @Scheduled(fixedRate = 30, timeUnit = TimeUnit.SECONDS)
+    fun scheduledFetchTask() {
+        logger.info("[**scheduleTask**] start")
+    }
+
     fun pushTaskOfNewTicket(unicTicket: UnicTicket) {
         getCoroutineScope().launch {
             var retryCount = 0
@@ -82,7 +87,6 @@ class CourseFetchCollector {
                 delay(5000)
                 retryCount += 1
             }
-
         }
     }
 
@@ -102,7 +106,7 @@ class CourseFetchCollector {
         // call the python interact service and get the response
         //val result = callPythonScriptGetCourse(unicTicket.uid, decryptedPassword, actionType, year, term)
         // TODO: debug only.
-        val result = mockGetResourceWithFile()
+        val result = mockGetCourseWithFile()
         return when (result.code) {
             PythonResponseCode.success -> {
                 messageService.sendTicketMessage(unicTicket, 0, "get initialize info success.")
@@ -135,16 +139,23 @@ class CourseFetchCollector {
         checkNotNull(result.data) { "the result data is null" }
         unicStudentAndCourseService.updateUnicStudentInfo(result.data.userInfo.toUnicStudentInfo())
 
+        logger.info(">>doPostTask(${unicTicket.uid}):${actionType.value}")
         // find the related year terms
         val yearPeriods = result.data.yearPeriods()
+        var addCount: Int = 0
+        var removeCount: Int = 0
+
         for (yearPeriod in yearPeriods) {
-            unicStudentAndCourseService.updateWithSource(
+            val r = unicStudentAndCourseService.updateWithSource(
                 unicTicket.uid,
                 courses = result.data.select(yearPeriod).toCourseSequence().asIterable(),
                 yearPeriod = yearPeriod
             )
-            messageService.sendTicketMessage(unicTicket, 0, "get course info success. yearPeriod: $yearPeriod")
+            addCount += r.data.count { it.updateCode == UpdateCode.Added }
+            removeCount += r.data.count { it.updateCode == UpdateCode.Removed }
         }
+
+        logger.info("<<doPostTask(${unicTicket.uid}):${actionType.value}+$addCount-$removeCount")
 
     }
 
@@ -190,12 +201,11 @@ class CourseFetchCollector {
     @Value("classpath:result.json")
     private lateinit var resultFile: File
 
-    suspend fun mockGetResourceWithFile(): Responses<PythonCourseResp> = withContext(Dispatchers.IO) {
+    suspend fun mockGetCourseWithFile(): Responses<PythonCourseResp> = withContext(Dispatchers.IO) {
         val json = Json {
             ignoreUnknownKeys = true
             isLenient = true
         }
-        val resultEntity = json.decodeFromString<Responses<PythonCourseResp>>(resultFile.readText())
-        return@withContext resultEntity
+        return@withContext json.decodeFromString<Responses<PythonCourseResp>>(resultFile.readText())
     }
 }

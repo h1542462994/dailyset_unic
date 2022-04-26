@@ -5,6 +5,6 @@
 
 package org.tty.dailyset.dailyset_unic.bean.annotation
 
-@Target(AnnotationTarget.FUNCTION, AnnotationTarget.TYPE)
+@Target(AnnotationTarget.FUNCTION, AnnotationTarget.TYPE, AnnotationTarget.PROPERTY)
 @Retention(AnnotationRetention.BINARY)
 annotation class DbDirect()
