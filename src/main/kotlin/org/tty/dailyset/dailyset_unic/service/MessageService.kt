@@ -19,7 +19,7 @@ class MessageService {
             topic = "dailyset_unic_ticket",
             referer = unicTicket.ticketId,
             code = code,
-            message = message
+            content = message
         ))
     }
 

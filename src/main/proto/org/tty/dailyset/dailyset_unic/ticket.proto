@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package org.tty.dailyset.dailyset_unic;
+
 option java_multiple_files = true;
 option java_package = "org.tty.dailyset.dailyset_unic.grpc";
 option java_outer_classname = "TicketProto";

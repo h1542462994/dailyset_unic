@@ -112,9 +112,9 @@ tasks.withType<ProcessResources> {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
-tasks.getByName("clean").apply {
-    delete(protobuf.protobuf.generatedFilesBaseDir)
-}
+//tasks.getByName("clean").apply {
+//    delete(protobuf.protobuf.generatedFilesBaseDir)
+//}
 
 protobuf {
     protoc {
