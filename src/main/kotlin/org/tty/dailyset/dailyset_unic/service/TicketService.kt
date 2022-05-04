@@ -83,7 +83,12 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
             code = ResponseCodes.success
             message = "查询成功"
             ticket = ticketExisted.toGrpcTicket()
-            this.studentInfo = studentInfo.toGrpcStudentInfo()
+            // 这里仅通过验证的ticket才会返回信息
+            this.studentInfo = if (ticketExisted.status == UnicTicketStatus.Checked.value) {
+                studentInfo.toGrpcStudentInfo()
+            } else {
+                grpcBeanFactory.emptyStudentInfo()
+            }
         }
     }
 

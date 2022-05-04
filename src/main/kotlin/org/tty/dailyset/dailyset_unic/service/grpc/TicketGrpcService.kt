@@ -21,7 +21,7 @@ class TicketGrpcService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
     }
 
     override suspend fun query(request: TicketQueryRequest): TicketQueryResponse {
-        return super.query(request)
+        return ticketService.query(request)
     }
 
 
