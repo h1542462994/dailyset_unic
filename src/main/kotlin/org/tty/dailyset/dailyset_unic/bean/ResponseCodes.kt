@@ -9,10 +9,15 @@ object ResponseCodes {
     /**
      * success: 0
      */
-    val ResponseCodes.success: Int get() = 0
+    const val success = 0
 
     /**
      * error: 1
      */
-    val ResponseCodes.fail: Int get() = 1
+    const val fail = 1
+
+    /**
+     * ticketNotExist: 10011
+     */
+    const val ticketNotExist = 10011
 }

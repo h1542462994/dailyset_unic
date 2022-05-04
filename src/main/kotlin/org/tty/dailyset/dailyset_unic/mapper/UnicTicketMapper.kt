@@ -14,6 +14,9 @@ interface UnicTicketMapper {
     @Update("update unic_ticket set status = #{status} where ticket_id = #{ticketId}")
     fun updateStatusByTicketId(ticketId: String, status: Int): Int
 
+    @Select("select * from unic_ticket where ticket_id = #{ticketId}")
+    fun findUnicTicketByTicketId(ticketId: String): UnicTicket?
+
     /**
      * get available tickets, status see [UnicTicketStatus]
      */

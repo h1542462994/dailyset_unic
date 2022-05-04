@@ -8,17 +8,30 @@ option java_outer_classname = "TicketProto";
 
 service TicketService {
     // bind ticket
-    rpc bind(TicketRequest) returns (TicketResponse) {}
+    rpc bind(TicketBindRequest) returns (TicketBindResponse) {}
+    // query ticket
+    rpc query(TicketQueryRequest) returns (TicketQueryResponse) {}
 }
 
-message TicketRequest {
+message TicketBindRequest {
     string uid = 1;
     string password = 2;
 }
 
-message TicketResponse {
+message TicketQueryRequest {
+    string ticketId = 1;
+}
+
+message TicketBindResponse {
     bool success = 1;
     Ticket ticket = 2;
+}
+
+message TicketQueryResponse {
+    int32 code = 1;
+    string message = 2;
+    Ticket ticket = 3;
+    StudentInfo studentInfo = 4;
 }
 
 message Ticket {
@@ -33,4 +46,12 @@ message Ticket {
         PasswordFailure = 3;
     }
     TicketStatus status = 4;
+}
+
+message StudentInfo {
+    string uid = 1;
+    string departmentName = 2;
+    string className = 3;
+    string name = 4;
+    int32 grade = 5;
 }
