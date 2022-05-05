@@ -1,5 +1,6 @@
 package org.tty.dailyset.dailyset_unic.bean.entity
 
+@Deprecated("use DailySetStudentInfoMeta instead.")
 class UnicStudentInfo(
     val uid: String,
     val departmentName: String,

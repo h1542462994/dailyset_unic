@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Select
 import org.apache.ibatis.annotations.Update
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicStudentInfo
 
+@Deprecated("use DailyStudentInfoMeta instead.")
 @Mapper
 interface UnicStudentInfoMapper {
     @Select("select * from unic_student_info where uid = #{uid}")

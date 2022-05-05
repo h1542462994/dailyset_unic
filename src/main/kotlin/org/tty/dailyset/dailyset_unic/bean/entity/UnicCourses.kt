@@ -1,5 +1,6 @@
 package org.tty.dailyset.dailyset_unic.bean.entity
 
+@Deprecated("use DailySetCourse instead.")
 class UnicCourses(
     val courseId: String,
     val year: Int,

@@ -6,7 +6,6 @@
 package org.tty.dailyset.dailyset_unic.service.async
 
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.slf4j.LoggerFactory
@@ -15,7 +14,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.tty.dailyset.dailyset_unic.bean.Responses
 import org.tty.dailyset.dailyset_unic.bean.converters.*
-import org.tty.dailyset.dailyset_unic.bean.entity.UnicTicket
+import org.tty.dailyset.dailyset_unic.bean.entity.Ticket
 import org.tty.dailyset.dailyset_unic.bean.enums.PeriodCode
 import org.tty.dailyset.dailyset_unic.bean.enums.PythonInteractActionType
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus
@@ -27,10 +26,7 @@ import org.tty.dailyset.dailyset_unic.bean.interact.PythonResponseCode.unknown
 import org.tty.dailyset.dailyset_unic.bean.resp.PythonCourseResp
 import org.tty.dailyset.dailyset_unic.component.EncryptProvider
 import org.tty.dailyset.dailyset_unic.component.EnvironmentVars
-import org.tty.dailyset.dailyset_unic.service.MessageService
-import org.tty.dailyset.dailyset_unic.service.PreferenceService
-import org.tty.dailyset.dailyset_unic.service.TicketService
-import org.tty.dailyset.dailyset_unic.service.UnicCourseComplexService
+import org.tty.dailyset.dailyset_unic.service.*
 import java.io.BufferedReader
 import java.io.File
 import java.nio.charset.Charset
@@ -61,6 +57,9 @@ class CourseFetchCollector {
     @Autowired
     private lateinit var unicStudentAndCourseService: UnicCourseComplexService
 
+    @Autowired
+    private lateinit var dailySetService: DailySetService
+
     private val os = System.getProperty("os.name").lowercase(Locale.getDefault())
 
     private val logger = LoggerFactory.getLogger(CourseFetchCollector::class.java)
@@ -74,11 +73,12 @@ class CourseFetchCollector {
     }
 
 
-    fun pushTaskOfNewTicket(unicTicket: UnicTicket) {
-
+    fun pushTaskOfNewTicket(unicTicket: Ticket) {
+        // 获取当前的版本号
+        val currentVersion = preferenceService.unicCourseCurrentVersion
         getCoroutineScope().launch {
             var retryCount = 0
-            while (doPushTaskOfNewTicket(unicTicket, retryCount)) {
+            while (doPushTaskOfNewTicket(unicTicket, retryCount, currentVersion)) {
                 delay(5000)
                 retryCount += 1
             }
@@ -100,7 +100,7 @@ class CourseFetchCollector {
         }
     }
 
-    private suspend fun doPushTaskOfNewTicket(unicTicket: UnicTicket, retryCount: Int = 0): Boolean {
+    private suspend fun doPushTaskOfNewTicket(unicTicket: Ticket, retryCount: Int = 0, currentVersion: Int): Boolean {
         // construct the input args
         val actionType = PythonInteractActionType.Initialize
         val decryptedPassword = encryptProvider.aesDecrypt(unicTicket.uid, unicTicket.password)
@@ -148,17 +148,17 @@ class CourseFetchCollector {
         }
     }
 
-    private suspend fun doScheduleTaskWithUid(uid: String, tickets: List<UnicTicket>) {
+    private suspend fun doScheduleTaskWithUid(uid: String, tickets: List<Ticket>) {
         // get the current year period
         val yearPeriod = preferenceService.realYearPeriodNow
         val reliableTicket = tickets.find { it.status == UnicTicketStatus.Checked.value }
         var success = false
         lateinit var result: Responses<PythonCourseResp>
-        var successTicket: UnicTicket? = null
-        val updatedTickets = mutableListOf<UnicTicket>()
+        var successTicket: Ticket? = null
+        val updatedTickets = mutableListOf<Ticket>()
         val remainTickets = tickets.toMutableList()
 
-        suspend fun withTicket(ticket: UnicTicket): Boolean {
+        suspend fun withTicket(ticket: Ticket): Boolean {
             val decryptedPassword = encryptProvider.aesDecrypt(uid, ticket.password)
 
             if (decryptedPassword == null) {
@@ -221,10 +221,10 @@ class CourseFetchCollector {
         ticketService.updateTicketStatus(ticketId, ticketStatus)
     }
 
-    private suspend fun doPostTask(unicTicket: UnicTicket, actionType: PythonInteractActionType, result: Responses<PythonCourseResp>) {
+    private suspend fun doPostTask(unicTicket: Ticket, actionType: PythonInteractActionType, result: Responses<PythonCourseResp>) {
         // update the studentInfo
         checkNotNull(result.data) { "the result data is null" }
-        unicStudentAndCourseService.updateUnicStudentInfo(result.data.userInfo.toUnicStudentInfo())
+        dailySetService.updateOrInsertDailySetStudentInfoMeta(result.data.userInfo.toDailySetStudentInfoMeta())
 
         logger.info(">>doPostTask(${unicTicket.uid}):${actionType.value}")
         // find the related year terms

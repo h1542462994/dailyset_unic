@@ -1,7 +1,7 @@
 package org.tty.dailyset.dailyset_unic.bean.entity
 
-@Deprecated("function is migrated to <cloud>")
-class UnicDailyTable(
+data class DailySetSchoolInfoMeta(
     val uid: String,
+    val identifier: String,
     val name: String
 )

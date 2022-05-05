@@ -1,5 +1,6 @@
 package org.tty.dailyset.dailyset_unic.bean.converters
 
+import org.tty.dailyset.dailyset_unic.bean.entity.DailySetStudentInfoMeta
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicCourses
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicStudentInfo
 import org.tty.dailyset.dailyset_unic.bean.enums.PeriodCode
@@ -16,6 +17,16 @@ fun PythonUserInfo.toUnicStudentInfo(): UnicStudentInfo {
         className = this.className,
         name = this.name,
         grade = this.grade.toInt()
+    )
+}
+
+fun PythonUserInfo.toDailySetStudentInfoMeta(): DailySetStudentInfoMeta {
+    return DailySetStudentInfoMeta(
+        uid = this.studentNumber,
+        departmentName = this.departmentName,
+        className = this.className,
+        name = this.name,
+        grade = this.grade.toInt(),
     )
 }
 

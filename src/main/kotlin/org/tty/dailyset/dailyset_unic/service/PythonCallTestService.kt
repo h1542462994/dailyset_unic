@@ -10,6 +10,7 @@ import java.io.BufferedReader
 import java.nio.charset.Charset
 import java.util.*
 
+@Deprecated("")
 @Service
 class PythonCallTestService {
 

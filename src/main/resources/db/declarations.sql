@@ -8,101 +8,120 @@
 # file: declarations.sql
 
 # create database `dailyset_unic` dsl
-CREATE DATABASE IF NOT EXISTS `dailyset_cloud`
+CREATE DATABASE IF NOT EXISTS `dailyset_unic`
     DEFAULT CHARACTER SET `utf8mb4`
     DEFAULT COLLATE `utf8mb4_general_ci`;
 
-USE `dailyset_cloud`;
+USE `dailyset_unic`;
+
+# create table `preference` dsl
+CREATE TABLE IF NOT EXISTS `preference`
+(
+    `preference_name` VARCHAR(64) UNIQUE NOT NULL,
+    `use_default`     BOOLEAN            NOT NULL DEFAULT TRUE,
+    `value`           VARCHAR(256)       NOT NULL,
+    PRIMARY KEY (`preference_name`)
+);
 
 # create table `unic_ticket` dsl
 # ticket is a binder for student account
-CREATE TABLE IF NOT EXISTS `unic_ticket`(
+CREATE TABLE IF NOT EXISTS `ticket`
+(
     `ticket_id` VARCHAR(64) UNIQUE NOT NULL,
-    `uid` VARCHAR(64) NOT NULL,
-    `password` VARCHAR(256) NOT NULL,
-    `status` INT NOT NULL DEFAULT 0,
+    `uid`       VARCHAR(64)        NOT NULL,
+    `password`  VARCHAR(256)       NOT NULL,
+    `status`    INTEGER            NOT NULL DEFAULT 0,
     PRIMARY KEY (`ticket_id`)
 );
 
-#region table of time and daily_set
-# create table `unic_term_duration` dsl
-CREATE TABLE IF NOT EXISTS `unic_time_duration`(
-    `time_duration_id` VARCHAR(64) UNIQUE NOT NULL,
-    `start_date` DATE NOT NULL,
-    `end_date` DATE NOT NULL,
-    `year` INT NOT NULL,
-    `period_code` INT NOT NULL,
-    PRIMARY KEY (`time_duration_id`)
+# 本质上是cloud项目表的一个子集.
+# create table `dailyset` dsl
+CREATE TABLE IF NOT EXISTS `dailyset`
+(
+    `uid`            VARCHAR(64) UNIQUE NOT NULL, # 资源的uid
+    `type`           INTEGER            NOT NULL, # 资源的类型
+    `source_version` INTEGER            NOT NULL, # 资源版本
+    `matte_version`  INTEGER            NOT NULL, # 蒙版资源版本
+    `meta_version`   INTEGER            NOT NULL, # 元数据版本
+    PRIMARY KEY (`uid`)
 );
 
-# create table `unic_daily_table` dsl
-CREATE TABLE IF NOT EXISTS `unic_daily_table`(
-    `uid` VARCHAR(64) NOT NULL,
+# create table `dailyset_meta_links` dsl
+CREATE TABLE IF NOT EXISTS `dailyset_meta_links`
+(
+    `dailyset_uid`   VARCHAR(64) NOT NULL, # 日程表的uid
+    `meta_type`      INTEGER     NOT NULL, # 元数据类型
+    `meta_uid`       VARCHAR(64) NOT NULL, # 元数据的uid
+    `insert_version` INTEGER     NOT NULL, # 插入版本
+    `update_version` INTEGER     NOT NULL, # 更新版本
+    `remove_version` INTEGER     NOT NULL, # 移除版本
+    `last_tick`      DATETIME DEFAULT '1970-1-1 0:00:00',
+    INDEX `dailyset_source_links_index1`(`dailyset_uid`, `meta_type`)
+);
+
+
+CREATE TABLE IF NOT EXISTS `dailyset_source_links`
+(
+    `dailyset_uid`   VARCHAR(64) NOT NULL, # 日程表的uid
+    `source_type`    INTEGER     NOT NULL, # 资源类型
+    `source_uid`     VARCHAR(64) NOT NULL, # 资源的uid
+    `insert_version` INTEGER     NOT NULL, # 插入版本
+    `update_version` INTEGER     NOT NULL, # 更新版本
+    `remove_version` INTEGER     NOT NULL, # 删除版本
+    `last_tick`      DATETIME DEFAULT '1970-1-1 0:00:00',
+    INDEX `dailyset_source_links_index1` (`dailyset_uid`, `source_type`)
+);
+
+# create table `dailyset_course` dsl, source_type = 10
+CREATE TABLE IF NOT EXISTS `dailyset_course`
+(
+    `source_uid`    VARCHAR(64) NOT NULL, # 资源的id
+    `year`          INTEGER     NOT NULL, # 名称
+    `period_code`   INTEGER     NOT NULL, # 周期码
+    `name`          VARCHAR(64) NOT NULL, # 名称
+    `campus`        VARCHAR(64) NOT NULL, # 校区
+    `location`      VARCHAR(64) NOT NULL, # 地点
+    `teacher`       VARCHAR(64) NOT NULL, # 教师
+    `weeks`         VARCHAR(64) NOT NULL, # 周数
+    `week_day`      INTEGER     NOT NULL, # 周几
+    `section_start` INTEGER     NOT NULL, # 开始节数
+    `section_end`   INTEGER     NOT NULL, # 结束节数
+    `digest`        VARCHAR(64) NOT NULL, # 摘要
+    PRIMARY KEY (source_uid)
+);
+
+# create table `dailyset_duration` dsl, source_type = 4
+CREATE TABLE IF NOT EXISTS `dailyset_duration`
+(
+    `source_uid`          VARCHAR(64) NOT NULL,   # 资源的id
+    `type`                INTEGER     NOT NULL,   # 类型
+    `start_date`          DATE        NOT NULL,   # 开始日期
+    `end_date`            DATE        NOT NULL,   # 结束日期
+    `name`                VARCHAR(64) NOT NULL,   # 名称
+    `tag`                 VARCHAR(64) DEFAULT '', # 标签
+    `binding_year`        INTEGER     DEFAULT -1, # 绑定年份
+    `binding_period_code` INTEGER     DEFAULT -1, # 绑定周期码
+    PRIMARY KEY (source_uid)
+);
+
+#region table of student and course
+# create table `unic_student_info` dsl meta_type = 101
+CREATE TABLE IF NOT EXISTS `dailyset_student_info_meta`
+(
+    `uid`             VARCHAR(64)  NOT NULL,
+    `department_name` VARCHAR(256) NOT NULL,
+    `class_name`      VARCHAR(256) NOT NULL,
+    `name`            VARCHAR(64)  NOT NULL,
+    `grade`           INT          NOT NULL,
+    PRIMARY KEY (`uid`)
+);
+
+# create table `unic_student_course` dsl meta_type = 102
+CREATE TABLE IF NOT EXISTS `dailyset_school_info_meta`
+(
+    `uid`  VARCHAR(64) NOT NULL,
+    `identifier`  VARCHAR(64) NOT NULL,
     `name` VARCHAR(64) NOT NULL,
     PRIMARY KEY (`uid`)
 );
-
-# create table `unic_daily_row` dsl
-CREATE TABLE IF NOT EXISTS `unic_daily_row`(
-    `uid` VARCHAR(64) NOT NULL,
-    `current_index` INT NOT NULL,
-    `weekdays` VARCHAR(64) NOT NULL,
-    `counts` VARCHAR(64) NOT NULL,
-    `daily_table_id` VARCHAR(64) NOT NULL,
-    PRIMARY KEY (`uid`)
-);
-
-# create table `unic_daily_cell` dsl
-CREATE TABLE IF NOT EXISTS `unic_daily_cell`(
-    `uid` VARCHAR(64) NOT NULL,
-    `current_index` INT NOT NULL,
-    `start` TIME NOT NULL,
-    `end` TIME NOT NULL,
-    `normal_type` INT NOT NULL,
-    `serial_index` INT NOT NULL,
-    PRIMARY KEY (`uid`)
-);
-
-
-#endregion
-
-#region table of student and course
-# create table `unic_student_info` dsl
-CREATE TABLE IF NOT EXISTS `unic_student_info`(
-      `uid` VARCHAR(64) NOT NULL,
-      `department_name` VARCHAR(256) NOT NULL,
-      `class_name` VARCHAR(256) NOT NULL,
-      `name` VARCHAR(64) NOT NULL,
-      `grade` INT NOT NULL,
-      PRIMARY KEY (`uid`)
-);
-
-# create table `unic_course_info` dsl
-CREATE TABLE IF NOT EXISTS `unic_courses`(
-    `course_id` VARCHAR(64) NOT NULL,
-    `year` INT NOT NULL,
-    `period_code` INT NOT NULL,
-    `name` VARCHAR(256) NOT NULL,
-    `campus` VARCHAR(256) NOT NULL,
-    `location` VARCHAR(256) NOT NULL,
-    `teacher` VARCHAR(256) NOT NULL,
-    `weeks` VARCHAR(256) NOT NULL,
-    `week_day` INT NOT NULL,
-    `section_start` INT NOT NULL,
-    `section_end` INT NOT NULL,
-    `digest` VARCHAR(256) NOT NULL,
-    PRIMARY KEY (`course_id`),
-    INDEX `index_digest` (`digest`)
-);
-
-# create table `unic_course_student_bind` dsl
-CREATE TABLE IF NOT EXISTS `unic_course_student_bind`(
-    `course_id` VARCHAR(64) NOT NULL,
-    `uid` VARCHAR(64) NOT NULL,
-    PRIMARY KEY (`course_id`, `uid`),
-    INDEX `index_course_id` (`course_id`),
-    INDEX `index_uid` (`uid`)
-);
-#endregion
-
 

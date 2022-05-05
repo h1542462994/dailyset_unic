@@ -1,7 +1,7 @@
 package org.tty.dailyset.dailyset_unic.bean.converters
 
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicStudentInfo
-import org.tty.dailyset.dailyset_unic.bean.entity.UnicTicket
+import org.tty.dailyset.dailyset_unic.bean.entity.Ticket
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus.*
 import org.tty.dailyset.dailyset_unic.grpc.MessageProtoBuilders.MessageResponse
@@ -12,7 +12,7 @@ import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.StudentInfo
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.Ticket
 import org.tty.dailyset.dailyset_unic.intent.MessageSendIntent
 
-fun UnicTicket.toGrpcTicket(): Ticket {
+fun org.tty.dailyset.dailyset_unic.bean.entity.Ticket.toGrpcTicket(): Ticket {
     return Ticket {
         ticketId = this@toGrpcTicket.ticketId
         uid = this@toGrpcTicket.uid

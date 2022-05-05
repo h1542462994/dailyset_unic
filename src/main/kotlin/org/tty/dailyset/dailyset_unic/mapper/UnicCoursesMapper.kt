@@ -10,6 +10,7 @@ import org.tty.dailyset.dailyset_unic.bean.entity.UnicCourses
 import java.text.MessageFormat
 import java.util.*
 
+@Deprecated("user DailySetCourseMapper instead.")
 @Mapper
 interface UnicCoursesMapper {
     @Select("select * from unic_courses where year = #{year} and period_code = #{periodCode}")

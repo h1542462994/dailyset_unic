@@ -38,5 +38,10 @@ enum class PreferenceName(
      * **unic_course_schedule_task_parallel_size**,课程表任务并行数量,默认为4
      */
     UNIC_COURSE_SCHEDULE_TASK_PARALLEL_SIZE("unic_course_schedule_task_parallel_size", "4"),
+
+    /**
+     * **unic_course_current_version**,课程表数据的当前版本号
+     */
+    UNIC_COURSE_CURRENT_VERSION("unic_course_current_version", "0"),
     ;
 }

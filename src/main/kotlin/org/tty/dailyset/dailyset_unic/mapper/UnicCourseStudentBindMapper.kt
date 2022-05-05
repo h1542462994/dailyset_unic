@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper
 import org.apache.ibatis.annotations.Select
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicCourseStudentBind
 
+@Deprecated("use DailySetCourseStudentBindMapper")
 @Mapper
 interface UnicCourseStudentBindMapper {
 

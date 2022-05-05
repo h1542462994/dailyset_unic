@@ -14,7 +14,6 @@ import org.tty.dailyset.dailyset_unic.bean.enums.PeriodCode
 import org.tty.dailyset.dailyset_unic.bean.enums.PreferenceName
 import org.tty.dailyset.dailyset_unic.bean.interact.YearPeriod
 import org.tty.dailyset.dailyset_unic.mapper.PreferenceMapper
-import org.tty.dailyset.dailyset_unic.mapper.UnicTimeDurationMapper
 import org.tty.dailyset.dailyset_unic.util.InitSaver
 import org.tty.dailyset.dailyset_unic.util.epochLocalDateTime
 import java.time.LocalDate
@@ -29,8 +28,6 @@ class PreferenceService {
     @Autowired
     private lateinit var preferenceMapper: PreferenceMapper
 
-    @Autowired
-    private lateinit var unicTimeDurationMapper: UnicTimeDurationMapper
 
     /**
      * get the stored preference value or get the [PreferenceName.defaultValue] if not found.
@@ -130,10 +127,10 @@ class PreferenceService {
             } else {
                 // if auto config, then use the config timeDuration
                 val nowDate = LocalDate.now()
-                val timeDuration = unicTimeDurationMapper.findUnicTimeDurationByBetweenStartDateAndEndDate(nowDate)
-                if (timeDuration != null) {
-                    return YearPeriod(timeDuration.year, PeriodCode.from(timeDuration.periodCode))
-                }
+//                val timeDuration = unicTimeDurationMapper.findUnicTimeDurationByBetweenStartDateAndEndDate(nowDate)
+//                if (timeDuration != null) {
+//                    return YearPeriod(timeDuration.year, PeriodCode.from(timeDuration.periodCode))
+//                }
 
                 // if not found, use default algorithm
                 val year = nowDate.year
@@ -145,6 +142,15 @@ class PreferenceService {
                 return YearPeriod(year, periodCode)
             }
         }
+
+    val unicCourseCurrentVersion: Int get() {
+        synchronized(this) {
+            val oldValue = getValueOrDefault(PreferenceName.UNIC_COURSE_CURRENT_VERSION).toInt()
+            val newValue = oldValue + 1
+            setValue(PreferenceName.UNIC_COURSE_CURRENT_VERSION, newValue.toString())
+            return oldValue
+        }
+    }
 
 
 }
