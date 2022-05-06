@@ -11,15 +11,10 @@ import org.tty.dailyset.dailyset_unic.bean.entity.UnicTicket
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus
 import org.tty.dailyset.dailyset_unic.component.EncryptProvider
 import org.tty.dailyset.dailyset_unic.component.GrpcBeanFactory
-import org.tty.dailyset.dailyset_unic.grpc.TicketBindRequest
-import org.tty.dailyset.dailyset_unic.grpc.TicketBindResponse
+import org.tty.dailyset.dailyset_unic.grpc.*
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketBindResponse
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketQueryResponse
-import org.tty.dailyset.dailyset_unic.grpc.TicketQueryRequest
-import org.tty.dailyset.dailyset_unic.grpc.TicketQueryResponse
-import org.tty.dailyset.dailyset_unic.grpc.TicketServiceCoroutineGrpc
 import org.tty.dailyset.dailyset_unic.mapper.DailySetStudentInfoMetaMapper
-import org.tty.dailyset.dailyset_unic.mapper.UnicStudentInfoMapper
 import org.tty.dailyset.dailyset_unic.mapper.TicketMapper
 import org.tty.dailyset.dailyset_unic.service.async.CourseFetchCollector
 import org.tty.dailyset.dailyset_unic.util.uuid

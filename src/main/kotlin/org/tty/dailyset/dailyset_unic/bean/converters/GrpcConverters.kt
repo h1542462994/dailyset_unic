@@ -1,8 +1,6 @@
 package org.tty.dailyset.dailyset_unic.bean.converters
 
-import org.tty.dailyset.dailyset_unic.bean.entity.DailySetSchoolInfoMeta
 import org.tty.dailyset.dailyset_unic.bean.entity.DailySetStudentInfoMeta
-import org.tty.dailyset.dailyset_unic.bean.entity.UnicStudentInfo
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus.*
 import org.tty.dailyset.dailyset_unic.grpc.MessageProtoBuilders.MessageResponse
@@ -30,15 +28,6 @@ fun UnicTicketStatus.toGrpcTicketStatus(): Ticket.TicketStatus {
     }
 }
 
-fun UnicStudentInfo.toGrpcStudentInfo(): StudentInfo {
-    return StudentInfo {
-        this.uid = this@toGrpcStudentInfo.uid
-        this.departmentName = this@toGrpcStudentInfo.departmentName
-        this.className = this@toGrpcStudentInfo.className
-        this.name = this@toGrpcStudentInfo.name
-        this.grade = this@toGrpcStudentInfo.grade
-    }
-}
 
 fun DailySetStudentInfoMeta.toGrpcStudentInfo(): StudentInfo {
     return StudentInfo {
