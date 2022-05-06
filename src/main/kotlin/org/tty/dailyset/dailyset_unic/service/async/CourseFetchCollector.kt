@@ -14,11 +14,10 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.tty.dailyset.dailyset_unic.bean.Responses
 import org.tty.dailyset.dailyset_unic.bean.converters.*
-import org.tty.dailyset.dailyset_unic.bean.entity.Ticket
+import org.tty.dailyset.dailyset_unic.bean.entity.UnicTicket
 import org.tty.dailyset.dailyset_unic.bean.enums.PeriodCode
 import org.tty.dailyset.dailyset_unic.bean.enums.PythonInteractActionType
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus
-import org.tty.dailyset.dailyset_unic.bean.enums.UpdateCode
 import org.tty.dailyset.dailyset_unic.bean.interact.PythonResponseCode
 import org.tty.dailyset.dailyset_unic.bean.interact.PythonResponseCode.loginFail
 import org.tty.dailyset.dailyset_unic.bean.interact.PythonResponseCode.success
@@ -55,9 +54,6 @@ class CourseFetchCollector {
     private lateinit var ticketService: TicketService
 
     @Autowired
-    private lateinit var unicStudentAndCourseService: UnicCourseComplexService
-
-    @Autowired
     private lateinit var dailySetService: DailySetService
 
     private val os = System.getProperty("os.name").lowercase(Locale.getDefault())
@@ -73,7 +69,7 @@ class CourseFetchCollector {
     }
 
 
-    fun pushTaskOfNewTicket(unicTicket: Ticket) {
+    fun pushTaskOfNewTicket(unicTicket: UnicTicket) {
         // 获取当前的版本号
         val currentVersion = preferenceService.unicCourseCurrentVersion
         getCoroutineScope().launch {
@@ -86,6 +82,8 @@ class CourseFetchCollector {
     }
 
     fun pushScheduleTask() {
+        // 获取当前的版本号
+        val currentVersion = preferenceService.unicCourseCurrentVersion
         val yearPeriod = preferenceService.realYearPeriodNow
         if (yearPeriod.periodCode != PeriodCode.FirstTerm && yearPeriod.periodCode != PeriodCode.SecondTerm) {
             logger.info("[schedule] current is not in first or second term, skip schedule task.")
@@ -95,12 +93,12 @@ class CourseFetchCollector {
         val now = LocalDateTime.now()
         logger.info("[schedule] schedule task > ${now.toStandardString()}")
         getCoroutineScope().launch {
-            doScheduleTask()
+            doScheduleTask(currentVersion)
             logger.info("[schedule] schedule task < ${now.toStandardString()} - ${LocalDateTime.now().toStandardString()}")
         }
     }
 
-    private suspend fun doPushTaskOfNewTicket(unicTicket: Ticket, retryCount: Int = 0, currentVersion: Int): Boolean {
+    private suspend fun doPushTaskOfNewTicket(unicTicket: UnicTicket, retryCount: Int = 0, currentVersion: Int): Boolean {
         // construct the input args
         val actionType = PythonInteractActionType.Initialize
         val decryptedPassword = encryptProvider.aesDecrypt(unicTicket.uid, unicTicket.password)
@@ -113,13 +111,13 @@ class CourseFetchCollector {
         val yearPeriod = preferenceService.realYearPeriodNow
 
         // call the python interact service and get the response
-        val result = callPythonScriptGetCourse(unicTicket.uid, decryptedPassword, actionType, yearPeriod.year, yearPeriod.periodCode.toTerm())
+        //val result = callPythonScriptGetCourse(unicTicket.uid, decryptedPassword, actionType, yearPeriod.year, yearPeriod.periodCode.toTerm())
         // TODO: debug only.
-        //val result = mockGetCourseWithFile()
+        val result = mockGetCourseWithFile()
         return when (result.code) {
             PythonResponseCode.success -> {
                 messageService.sendTicketMessage(unicTicket, 0, "get initialize info success.")
-                doPostTask(unicTicket, actionType, result)
+                doPostTask(unicTicket, actionType, result, currentVersion)
                 updateTickStatus(unicTicket.ticketId, UnicTicketStatus.Checked)
                 false
             }
@@ -139,26 +137,26 @@ class CourseFetchCollector {
         }
     }
 
-    private suspend fun doScheduleTask() {
+    private suspend fun doScheduleTask(currentVersion: Int) {
         val tickets = ticketService.findUnicTicketsByAvailableStatus()
         val group = tickets.groupBy { it.uid }
 
         group.forEach { (t, u) ->
-            doScheduleTaskWithUid(t, u)
+            doScheduleTaskWithUid(t, u, currentVersion)
         }
     }
 
-    private suspend fun doScheduleTaskWithUid(uid: String, tickets: List<Ticket>) {
+    private suspend fun doScheduleTaskWithUid(uid: String, tickets: List<UnicTicket>, currentVersion: Int) {
         // get the current year period
         val yearPeriod = preferenceService.realYearPeriodNow
         val reliableTicket = tickets.find { it.status == UnicTicketStatus.Checked.value }
         var success = false
         lateinit var result: Responses<PythonCourseResp>
-        var successTicket: Ticket? = null
-        val updatedTickets = mutableListOf<Ticket>()
+        var successTicket: UnicTicket? = null
+        val updatedTickets = mutableListOf<UnicTicket>()
         val remainTickets = tickets.toMutableList()
 
-        suspend fun withTicket(ticket: Ticket): Boolean {
+        suspend fun withTicket(ticket: UnicTicket): Boolean {
             val decryptedPassword = encryptProvider.aesDecrypt(uid, ticket.password)
 
             if (decryptedPassword == null) {
@@ -213,7 +211,7 @@ class CourseFetchCollector {
 
 
         if (success) {
-            doPostTask(successTicket!!, actionType = PythonInteractActionType.GetCourse, result = result)
+            doPostTask(successTicket!!, actionType = PythonInteractActionType.GetCourse, result = result, currentVersion = currentVersion)
         }
     }
 
@@ -221,26 +219,29 @@ class CourseFetchCollector {
         ticketService.updateTicketStatus(ticketId, ticketStatus)
     }
 
-    private suspend fun doPostTask(unicTicket: Ticket, actionType: PythonInteractActionType, result: Responses<PythonCourseResp>) {
+    private suspend fun doPostTask(unicTicket: UnicTicket, actionType: PythonInteractActionType, result: Responses<PythonCourseResp>, currentVersion: Int) {
         // update the studentInfo
         checkNotNull(result.data) { "the result data is null" }
         dailySetService.updateOrInsertDailySetStudentInfoMeta(result.data.userInfo.toDailySetStudentInfoMeta())
+        dailySetService.ensureStudentDailySetCreated(result.data.userInfo.studentNumber)
 
         logger.info(">>doPostTask(${unicTicket.uid}):${actionType.value}")
         // find the related year terms
         val yearPeriods = result.data.yearPeriods()
-        var addCount: Int = 0
-        var removeCount: Int = 0
+        var addCount = 0
+        var removeCount = 0
 
         for (yearPeriod in yearPeriods) {
-            val r = unicStudentAndCourseService.updateWithSource(
+            val r = dailySetService.updateWithSource(
                 unicTicket.uid,
-                courses = result.data.select(yearPeriod).toCourseSequence().asIterable(),
-                yearPeriod = yearPeriod
+                courses = result.data.select(yearPeriod).toDailySetCourses().asIterable(),
+                yearPeriod = yearPeriod,
+                currentVersion = currentVersion
             )
-            addCount += r.data.count { it.updateCode == UpdateCode.Added }
-            removeCount += r.data.count { it.updateCode == UpdateCode.Removed }
+            addCount += r.addCount
+            removeCount += r.removeCount
         }
+        dailySetService.updateSourceVersion(result.data.userInfo.studentNumber, currentVersion)
 
         logger.info("<<doPostTask(${unicTicket.uid}):${actionType.value}+$addCount-$removeCount")
 

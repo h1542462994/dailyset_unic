@@ -5,4 +5,5 @@ data class DailySet(
     val type: Int,
     val sourceVersion: Int,
     val matteVersion: Int,
+    val metaVersion: Int
 )

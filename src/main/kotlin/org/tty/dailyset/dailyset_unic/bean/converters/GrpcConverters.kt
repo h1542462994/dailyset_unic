@@ -1,7 +1,8 @@
 package org.tty.dailyset.dailyset_unic.bean.converters
 
+import org.tty.dailyset.dailyset_unic.bean.entity.DailySetSchoolInfoMeta
+import org.tty.dailyset.dailyset_unic.bean.entity.DailySetStudentInfoMeta
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicStudentInfo
-import org.tty.dailyset.dailyset_unic.bean.entity.Ticket
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus.*
 import org.tty.dailyset.dailyset_unic.grpc.MessageProtoBuilders.MessageResponse
@@ -12,7 +13,7 @@ import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.StudentInfo
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.Ticket
 import org.tty.dailyset.dailyset_unic.intent.MessageSendIntent
 
-fun org.tty.dailyset.dailyset_unic.bean.entity.Ticket.toGrpcTicket(): Ticket {
+fun org.tty.dailyset.dailyset_unic.bean.entity.UnicTicket.toGrpcTicket(): Ticket {
     return Ticket {
         ticketId = this@toGrpcTicket.ticketId
         uid = this@toGrpcTicket.uid
@@ -39,6 +40,15 @@ fun UnicStudentInfo.toGrpcStudentInfo(): StudentInfo {
     }
 }
 
+fun DailySetStudentInfoMeta.toGrpcStudentInfo(): StudentInfo {
+    return StudentInfo {
+        this.uid = this@toGrpcStudentInfo.uid
+        this.departmentName = this@toGrpcStudentInfo.departmentName
+        this.className = this@toGrpcStudentInfo.className
+        this.name = this@toGrpcStudentInfo.name
+        this.grade = this@toGrpcStudentInfo.grade
+    }
+}
 fun MessageSendIntent.toGrpcMessage(): MessageResponse {
     return MessageResponse {
         topic = this@toGrpcMessage.topic

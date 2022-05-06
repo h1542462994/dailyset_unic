@@ -20,6 +20,7 @@ import org.tty.dailyset.dailyset_unic.util.Diff
 import org.tty.dailyset.dailyset_unic.util.uuid
 import java.time.LocalDateTime
 
+@Deprecated("use DailySetService instead.")
 @Service
 class UnicCourseComplexService {
     @Autowired
@@ -48,6 +49,8 @@ class UnicCourseComplexService {
     fun findExistCourseInfosByUidAndYearPeriod(uid: String, yearPeriod: YearPeriod): List<UnicCourseSimple> {
         return unicCoursesMapper.findUnicCourseSimplesByUidAndYearAndPeriodCode(uid, yearPeriod.year, yearPeriod.periodCode.code)
     }
+
+
 
     fun updateWithSource(uid: String, courses: Iterable<UnicCourses>, yearPeriod: YearPeriod): CourseUpdateResp {
         val existed = findExistCourseInfosByUidAndYearPeriod(uid, yearPeriod)

@@ -11,14 +11,14 @@ import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus
  * entity class -> unic_ticket
  * the ticket for binding account with gdjw.
  */
-data class Ticket(
+data class UnicTicket(
     val ticketId: String,
     val uid: String,
     val password: String,
     val status: Int
 ) {
-    fun copy(status: Int): Ticket {
-        return Ticket(ticketId, uid, password, status)
+    fun copy(status: Int): UnicTicket {
+        return UnicTicket(ticketId, uid, password, status)
     }
     constructor(ticketId: String, uid: String, password: String, status: UnicTicketStatus) : this(ticketId, uid, password, status.value)
 }

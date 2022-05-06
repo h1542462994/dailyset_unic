@@ -1,5 +1,6 @@
 package org.tty.dailyset.dailyset_unic.bean.converters
 
+import org.tty.dailyset.dailyset_unic.bean.entity.DailySetCourse
 import org.tty.dailyset.dailyset_unic.bean.entity.DailySetStudentInfoMeta
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicCourses
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicStudentInfo
@@ -10,6 +11,8 @@ import org.tty.dailyset.dailyset_unic.bean.interact.YearPeriod
 import org.tty.dailyset.dailyset_unic.bean.resp.PythonCourseResp
 import org.tty.dailyset.dailyset_unic.util.md5
 
+@Suppress("DeprecatedCallableAddReplaceWith")
+@Deprecated("user toDailySetStudentInfoMeta instead.")
 fun PythonUserInfo.toUnicStudentInfo(): UnicStudentInfo {
     return UnicStudentInfo(
         uid = this.studentNumber,
@@ -22,7 +25,7 @@ fun PythonUserInfo.toUnicStudentInfo(): UnicStudentInfo {
 
 fun PythonUserInfo.toDailySetStudentInfoMeta(): DailySetStudentInfoMeta {
     return DailySetStudentInfoMeta(
-        uid = this.studentNumber,
+        uid = "#school.zjut.${this.studentNumber}" ,
         departmentName = this.departmentName,
         className = this.className,
         name = this.name,
@@ -30,6 +33,7 @@ fun PythonUserInfo.toDailySetStudentInfoMeta(): DailySetStudentInfoMeta {
     )
 }
 
+@Deprecated("use toDailySetCourses instead.")
 fun PythonCourseCollection.toCourseSequence(): Sequence<UnicCourses> = sequence {
     for (course in this@toCourseSequence.courses.courseList) {
         val sectionPair = selectionTextToPair(course.section)
@@ -44,6 +48,28 @@ fun PythonCourseCollection.toCourseSequence(): Sequence<UnicCourses> = sequence 
             teacher = course.teacher,
             weeks = course.weeksArr.toString(),
             weekDay = course.weekDay,
+            sectionStart = sectionPair.first,
+            sectionEnd = sectionPair.second,
+            digest = md5(str)
+        )
+        yield(data)
+    }
+}
+
+fun PythonCourseCollection.toDailySetCourses(): Sequence<DailySetCourse> = sequence {
+    for (course in this@toDailySetCourses.courses.courseList) {
+        val sectionPair = selectionTextToPair(course.section)
+        val str = "${year}${term}${course.course}${course.campus}${course.place}${course.teacher}${course.weeksArr}${course.weekDay}${sectionPair.first}${sectionPair.second}"
+        val data = DailySetCourse(
+            sourceUid = "",
+            year = this@toDailySetCourses.year,
+            periodCode = termToPeriodCode(this@toDailySetCourses.term).code,
+            name = course.course,
+            campus = course.campus,
+            location = course.place,
+            teacher = course.teacher,
+            weeks = course.weeksArr.toString(),
+            weekDay = course.weekDay.toInt(),
             sectionStart = sectionPair.first,
             sectionEnd = sectionPair.second,
             digest = md5(str)

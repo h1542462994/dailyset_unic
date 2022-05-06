@@ -16,5 +16,6 @@ data class DailySetCourse(
     val weeks: String,
     val weekDay: Int,
     val sectionStart: Int,
-    val sectionEnd: Int
+    val sectionEnd: Int,
+    val digest: String
 )
