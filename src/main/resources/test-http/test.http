@@ -26,3 +26,12 @@ Content-Type: application/json
     "matteVersion": 0,
     "metaVersion": 0
 }
+
+### dailyset/info
+
+POST http://{{location}}/dailyset/info
+Content-Type: application/json
+
+{
+    "ticketId": "ed920c54-ce39-4d04-a64d-5c7b8e09d5dd"
+}

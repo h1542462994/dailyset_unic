@@ -2,7 +2,9 @@ package org.tty.dailyset.dailyset_unic.component
 
 import org.springframework.stereotype.Component
 import org.tty.dailyset.dailyset_unic.bean.entity.DailySet
+import org.tty.dailyset.dailyset_unic.bean.req.DailySetInfosReq
 import org.tty.dailyset.dailyset_unic.bean.req.DailySetUpdateReq
+import org.tty.dailyset.dailyset_unic.intent.DailySetInfosIntent
 import org.tty.dailyset.dailyset_unic.intent.DailySetUpdateIntent
 
 @Component
@@ -17,6 +19,12 @@ class IntentFactory {
                 matteVersion = dailySetUpdateReq.matteVersion!!,
                 metaVersion = dailySetUpdateReq.metaVersion!!
             )
+        )
+    }
+
+    fun createDailySetInfosIntent(dailySetInfosReq: DailySetInfosReq): DailySetInfosIntent {
+        return DailySetInfosIntent(
+            ticketId = dailySetInfosReq.ticketId!!
         )
     }
 }

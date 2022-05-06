@@ -5,14 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.tty.dailyset.dailyset_unic.bean.converters.toStandardString
 import org.tty.dailyset.dailyset_unic.bean.entity.*
-import org.tty.dailyset.dailyset_unic.bean.enums.DailySetMetaType
-import org.tty.dailyset.dailyset_unic.bean.enums.DailySetSourceType
-import org.tty.dailyset.dailyset_unic.bean.enums.DailySetType
 import org.tty.dailyset.dailyset_unic.bean.interact.YearPeriod
 import org.tty.dailyset.dailyset_unic.bean.CourseUpdateResult
 import org.tty.dailyset.dailyset_unic.bean.DailySetUpdateItemCollection
 import org.tty.dailyset.dailyset_unic.bean.DailySetUpdateResult
-import org.tty.dailyset.dailyset_unic.bean.enums.DailySetDataType
+import org.tty.dailyset.dailyset_unic.bean.enums.*
+import org.tty.dailyset.dailyset_unic.intent.DailySetInfosIntent
 import org.tty.dailyset.dailyset_unic.intent.DailySetUpdateIntent
 import org.tty.dailyset.dailyset_unic.mapper.*
 import org.tty.dailyset.dailyset_unic.service.resource.DailySetCourseResourceAdapter
@@ -34,7 +32,7 @@ class DailySetService {
     private lateinit var dailySetStudentInfoMetaMapper: DailySetStudentInfoMetaMapper
 
     @Autowired
-    private lateinit var dailySetSchoolInfoMetaMapper: DailySetSchoolIntoMetaMapper
+    private lateinit var ticketMapper: TicketMapper
 
     @Autowired
     private lateinit var dailySetMetaLinksMapper: DailySetMetaLinksMapper
@@ -284,6 +282,22 @@ class DailySetService {
 
         // save new links
         dailySetSourceLinksMapper.updateDailySetSourceLinksBatch(newLinks)
+    }
+
+    suspend fun getDailySetInfos(dailySetInfosIntent: DailySetInfosIntent): List<DailySet>? {
+        val ticket = ticketMapper.findUnicTicketByTicketId(dailySetInfosIntent.ticketId) ?: return null
+        if (ticket.status !in listOf(UnicTicketStatus.Checked.value, UnicTicketStatus.UnknownFailure.value)) {
+            return null
+        }
+
+        val unicDailySetUid = "#school.zjut.unic"
+        val dailySet1 = dailySetMapper.findDailySetByUid(unicDailySetUid)
+        val courseDailySetUid = "#school.zjut.course.${ticket.uid}"
+        val dailySet2 = dailySetMapper.findDailySetByUid(courseDailySetUid)
+
+        return listOfNotNull(
+            dailySet1, dailySet2
+        )
     }
 
     suspend fun getUpdates(intent: DailySetUpdateIntent): DailySetUpdateResult? {
