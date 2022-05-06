@@ -30,5 +30,5 @@ interface DailySetMetaLinksMapper {
             insert_version > #{oldVersion} or update_version > #{oldVersion} or remove_version > #{oldVersion}
         )
     """)
-    fun findAllDailySetMetaLinkByDailySetUidAndSourceTypeAndVersionsLargerThan(dailySetUid: String, sourceType: Int, oldVersion: Int): List<DailySetSourceLinks>
+    fun findAllDailySetMetaLinkByDailySetUidAndSourceTypeAndVersionsLargerThan(dailySetUid: String, metaType: Int, oldVersion: Int): List<DailySetMetaLinks>
 }

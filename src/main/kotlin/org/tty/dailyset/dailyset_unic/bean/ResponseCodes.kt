@@ -25,4 +25,9 @@ object ResponseCodes {
      * ticketNotExist: 10011
      */
     const val ticketNotExist = 10011
+
+    /**
+     * dailySetNotExist
+     */
+    const val dailySetNotExist = 10012
 }

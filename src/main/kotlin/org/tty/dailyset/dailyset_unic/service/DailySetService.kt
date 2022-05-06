@@ -16,6 +16,9 @@ import org.tty.dailyset.dailyset_unic.bean.enums.DailySetDataType
 import org.tty.dailyset.dailyset_unic.intent.DailySetUpdateIntent
 import org.tty.dailyset.dailyset_unic.mapper.*
 import org.tty.dailyset.dailyset_unic.service.resource.DailySetCourseResourceAdapter
+import org.tty.dailyset.dailyset_unic.service.resource.DailySetDurationResourceAdapter
+import org.tty.dailyset.dailyset_unic.service.resource.DailySetSchoolIntoMetaResourceAdapter
+import org.tty.dailyset.dailyset_unic.service.resource.DailySetStudentInfoMetaResourceAdapter
 import org.tty.dailyset.dailyset_unic.util.Diff
 import org.tty.dailyset.dailyset_unic.util.addNotNull
 import org.tty.dailyset.dailyset_unic.util.uuid
@@ -44,6 +47,15 @@ class DailySetService {
 
     @Autowired
     private lateinit var dailySetCourseResourceAdapter: DailySetCourseResourceAdapter
+
+    @Autowired
+    private lateinit var dailySetDurationResourceAdapter: DailySetDurationResourceAdapter
+
+    @Autowired
+    private lateinit var dailySetSchoolIntoMetaResourceAdapter: DailySetSchoolIntoMetaResourceAdapter
+
+    @Autowired
+    private lateinit var dailySetStudentInfoMetaResourceAdapter: DailySetStudentInfoMetaResourceAdapter
 
     private val logger = LoggerFactory.getLogger(DailySetService::class.java)
 
@@ -93,21 +105,21 @@ class DailySetService {
 
         dailySetMapper.addDailySet(dailySet)
 
-        val schoolUid = "#school.${schoolKey}"
-        val schoolInfoMeta = dailySetSchoolInfoMetaMapper.findDailySetSchoolIntoMetaByMetaUid(schoolUid)
-        requireNotNull(schoolInfoMeta) { "schoolInfoMeta is null" }
-
-        dailySetMetaLinksMapper.addDailySetMetaLinks(
-            DailySetMetaLinks(
-                dailySetUid = setUid,
-                metaType = DailySetMetaType.SchoolMeta.value,
-                metaUid = schoolUid,
-                insertVersion = 1,
-                updateVersion = 1,
-                removeVersion = 0,
-                lastTick = LocalDateTime.now()
-            )
-        )
+//        val schoolUid = "#school.${schoolKey}"
+//        val schoolInfoMeta = dailySetSchoolInfoMetaMapper.findDailySetSchoolIntoMetaByMetaUid(schoolUid)
+//        requireNotNull(schoolInfoMeta) { "schoolInfoMeta is null" }
+//
+//        dailySetMetaLinksMapper.addDailySetMetaLinks(
+//            DailySetMetaLinks(
+//                dailySetUid = setUid,
+//                metaType = DailySetMetaType.SchoolMeta.value,
+//                metaUid = schoolUid,
+//                insertVersion = 1,
+//                updateVersion = 1,
+//                removeVersion = 0,
+//                lastTick = LocalDateTime.now()
+//            )
+//        )
 
         val studentUid = "#school.${schoolKey}.${uid}"
         dailySetMetaLinksMapper.addDailySetMetaLinks(
@@ -285,9 +297,12 @@ class DailySetService {
         val updateItems = mutableListOf<DailySetUpdateItemCollection<*>>()
 
         //region meta data update
+        updateItems.addNotNull(withDailySetSchoolInfoMetaUpdates(intent))
+        updateItems.addNotNull(withDailySetStudentInfoMetaUpdates(intent))
         //endregion
 
         //region source data update
+        updateItems.addNotNull(withDailySetDurationUpdates(intent))
         updateItems.addNotNull(withDailySetCourseUpdates(intent))
         //endregion
 
@@ -306,6 +321,45 @@ class DailySetService {
         )
         return if (dailySetCourseUpdateItems.updates.isNotEmpty()) {
             dailySetCourseUpdateItems
+        } else {
+            null
+        }
+    }
+
+    private suspend fun withDailySetDurationUpdates(intent: DailySetUpdateIntent): DailySetUpdateItemCollection<DailySetDuration>? {
+        val dailySetDurationUpdateItems = DailySetUpdateItemCollection(
+            type = DailySetDataType.Source.value,
+            subType = DailySetSourceType.Duration.value,
+            updates = dailySetDurationResourceAdapter.getUpdateItems(intent.dailySet.uid, intent.dailySet.sourceVersion)
+        )
+        return if (dailySetDurationUpdateItems.updates.isNotEmpty()) {
+            dailySetDurationUpdateItems
+        } else {
+            null
+        }
+    }
+
+    private suspend fun withDailySetSchoolInfoMetaUpdates(intent: DailySetUpdateIntent): DailySetUpdateItemCollection<DailySetSchoolInfoMeta>? {
+        val dailySetSchoolInfoMetaUpdateItems = DailySetUpdateItemCollection(
+            type = DailySetDataType.Meta.value,
+            subType = DailySetMetaType.SchoolMeta.value,
+            updates = dailySetSchoolIntoMetaResourceAdapter.getUpdateItems(intent.dailySet.uid, intent.dailySet.metaVersion)
+        )
+        return if (dailySetSchoolInfoMetaUpdateItems.updates.isNotEmpty()) {
+            dailySetSchoolInfoMetaUpdateItems
+        } else {
+            null
+        }
+    }
+
+    private suspend fun withDailySetStudentInfoMetaUpdates(intent: DailySetUpdateIntent): DailySetUpdateItemCollection<DailySetStudentInfoMeta>? {
+        val dailySetStudentInfoMetaUpdateItems = DailySetUpdateItemCollection(
+            type = DailySetDataType.Meta.value,
+            subType = DailySetMetaType.StudentInfoMeta.value,
+            updates = dailySetStudentInfoMetaResourceAdapter.getUpdateItems(intent.dailySet.uid, intent.dailySet.metaVersion)
+        )
+        return if (dailySetStudentInfoMetaUpdateItems.updates.isNotEmpty()) {
+            dailySetStudentInfoMetaUpdateItems
         } else {
             null
         }

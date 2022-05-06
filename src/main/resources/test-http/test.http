@@ -1,5 +1,5 @@
 
-### dailyset/update
+### dailyset/update <student>
 
 POST http://{{location}}/dailyset/update
 Content-Type: application/json
@@ -8,6 +8,20 @@ Content-Type: application/json
     "ticketId": "ed920c54-ce39-4d04-a64d-5c7b8e09d5dd",
     "uid": "#school.zjut.course.201806061201",
     "type": 2,
+    "sourceVersion": 0,
+    "matteVersion": 0,
+    "metaVersion": 0
+}
+
+### dailyset/update <unic>
+
+POST http://{{location}}/dailyset/update
+Content-Type: application/json
+
+{
+    "ticketId": "ed920c54-ce39-4d04-a64d-5c7b8e09d5dd",
+    "uid": "#school.zjut.unic",
+    "type": 4,
     "sourceVersion": 0,
     "matteVersion": 0,
     "metaVersion": 0

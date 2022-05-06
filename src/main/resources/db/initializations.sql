@@ -52,3 +52,5 @@ INSERT INTO `dailyset_source_links` (dailyset_uid, source_type, source_uid, inse
 VALUES ('#school.zjut.unic', 4, '#school.zjut.2021-1', 1, 1, 0);
 INSERT INTO `dailyset_source_links` (dailyset_uid, source_type, source_uid, insert_version, update_version, remove_version)
 VALUES ('#school.zjut.unic', 4, '#school.zjut.2022-2', 1, 1, 0);
+INSERT INTO `dailyset_meta_links` (dailyset_uid, meta_type, meta_uid, insert_version, update_version, remove_version)
+VALUES ('#school.zjut.unic', 4, '#school.zjut', 1, 1, 0);

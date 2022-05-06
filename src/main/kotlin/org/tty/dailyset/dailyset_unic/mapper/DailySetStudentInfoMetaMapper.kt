@@ -22,4 +22,5 @@ interface DailySetStudentInfoMetaMapper {
         where meta_uid = #{metaUid}
     """)
     fun updateDailySetStudentInfoMeta(dailySetStudentInfoMeta: DailySetStudentInfoMeta): Int
+
 }
