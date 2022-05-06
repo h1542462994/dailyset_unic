@@ -111,9 +111,9 @@ class CourseFetchCollector {
         val yearPeriod = preferenceService.realYearPeriodNow
 
         // call the python interact service and get the response
-        //val result = callPythonScriptGetCourse(unicTicket.uid, decryptedPassword, actionType, yearPeriod.year, yearPeriod.periodCode.toTerm())
+        val result = callPythonScriptGetCourse(unicTicket.uid, decryptedPassword, actionType, yearPeriod.year, yearPeriod.periodCode.toTerm())
         // TODO: debug only.
-        val result = mockGetCourseWithFile()
+        //val result = mockGetCourseWithFile()
         return when (result.code) {
             PythonResponseCode.success -> {
                 messageService.sendTicketMessage(unicTicket, 0, "get initialize info success.")
