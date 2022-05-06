@@ -17,6 +17,11 @@ object ResponseCodes {
     const val fail = 1
 
     /**
+     * argError
+     */
+    const val argError = 2
+
+    /**
      * ticketNotExist: 10011
      */
     const val ticketNotExist = 10011

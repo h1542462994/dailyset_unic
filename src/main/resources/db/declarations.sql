@@ -108,20 +108,20 @@ CREATE TABLE IF NOT EXISTS `dailyset_duration`
 # create table `unic_student_info` dsl meta_type = 101
 CREATE TABLE IF NOT EXISTS `dailyset_student_info_meta`
 (
-    `uid`             VARCHAR(64)  NOT NULL,
+    `meta_uid`             VARCHAR(64)  NOT NULL,
     `department_name` VARCHAR(256) NOT NULL,
     `class_name`      VARCHAR(256) NOT NULL,
     `name`            VARCHAR(64)  NOT NULL,
     `grade`           INT          NOT NULL,
-    PRIMARY KEY (`uid`)
+    PRIMARY KEY (`meta_uid`)
 );
 
 # create table `unic_student_course` dsl meta_type = 102
 CREATE TABLE IF NOT EXISTS `dailyset_school_info_meta`
 (
-    `uid`  VARCHAR(64) NOT NULL,
+    `meta_uid`  VARCHAR(64) NOT NULL,
     `identifier`  VARCHAR(64) NOT NULL,
     `name` VARCHAR(64) NOT NULL,
-    PRIMARY KEY (`uid`)
+    PRIMARY KEY (`meta_uid`)
 );
 

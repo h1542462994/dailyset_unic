@@ -70,6 +70,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
 
+    runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:${coroutinesVersion}")
+
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("com.squareup.okhttp3:okhttp:4.9.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")

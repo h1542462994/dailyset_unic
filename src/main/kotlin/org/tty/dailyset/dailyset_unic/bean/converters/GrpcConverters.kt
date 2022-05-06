@@ -31,7 +31,7 @@ fun UnicTicketStatus.toGrpcTicketStatus(): Ticket.TicketStatus {
 
 fun DailySetStudentInfoMeta.toGrpcStudentInfo(): StudentInfo {
     return StudentInfo {
-        this.uid = this@toGrpcStudentInfo.uid
+        this.uid = this@toGrpcStudentInfo.metaUid
         this.departmentName = this@toGrpcStudentInfo.departmentName
         this.className = this@toGrpcStudentInfo.className
         this.name = this@toGrpcStudentInfo.name

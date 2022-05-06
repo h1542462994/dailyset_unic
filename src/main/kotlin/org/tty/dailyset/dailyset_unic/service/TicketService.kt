@@ -69,7 +69,7 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
 
 
         val studentUid = "#school.zjut.${ticketExisted.uid}"
-        val studentInfo = dailySetStudentInfoMetaMapper.findDailySetStudentInfoMetaByStudentId(studentUid)
+        val studentInfo = dailySetStudentInfoMetaMapper.findDailySetStudentInfoMetaByMetaUid(studentUid)
             ?: return TicketQueryResponse {
                 code = ResponseCodes.success
                 message = "学生信息不存在"

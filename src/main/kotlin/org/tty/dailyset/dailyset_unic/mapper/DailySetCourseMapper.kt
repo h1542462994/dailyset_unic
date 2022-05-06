@@ -60,4 +60,14 @@ interface DailySetCourseMapper {
         </script>
     """)
     fun findAllDailySetCourseByDigestBatch(digests: List<String>): List<DailySetCourse>
+
+    @Select("""
+        <script>
+            select * from dailyset_course where source_uid in 
+            <foreach collection="sourceUids" item="sourceUid" open="(" separator="," close=")">
+                #{sourceUid}
+            </foreach>
+        </script>
+    """)
+    fun findAllDailySetCourseBySourceUidBatch(sourceUids: List<String>): List<DailySetCourse>
 }

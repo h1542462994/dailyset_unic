@@ -83,3 +83,9 @@ fun nowDisplay(): String {
 fun epochLocalDateTime(): LocalDateTime {
     return LocalDateTime.ofInstant(Instant.EPOCH, ZoneId.systemDefault())
 }
+
+fun <T> MutableList<T>.addNotNull(value: T?) {
+    if (value != null) {
+        add(value)
+    }
+}

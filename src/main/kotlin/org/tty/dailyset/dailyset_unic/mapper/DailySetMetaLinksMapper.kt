@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper
 import org.apache.ibatis.annotations.Select
 import org.apache.ibatis.annotations.Update
 import org.tty.dailyset.dailyset_unic.bean.entity.DailySetMetaLinks
+import org.tty.dailyset.dailyset_unic.bean.entity.DailySetSourceLinks
 
 @Mapper
 interface DailySetMetaLinksMapper {
@@ -23,4 +24,11 @@ interface DailySetMetaLinksMapper {
         where dailyset_uid = #{dailySetUid} and meta_type = #{metaType} and meta_uid = #{metaUid}
     """)
     fun updateDailySetMetaLinks(dailySetMetaLinks: DailySetMetaLinks): Int
+
+    @Select("""
+        select * from dailyset_meta_links where dailyset_uid = #{dailySetUid} and meta_type = #{metaType} and (
+            insert_version > #{oldVersion} or update_version > #{oldVersion} or remove_version > #{oldVersion}
+        )
+    """)
+    fun findAllDailySetMetaLinkByDailySetUidAndSourceTypeAndVersionsLargerThan(dailySetUid: String, sourceType: Int, oldVersion: Int): List<DailySetSourceLinks>
 }

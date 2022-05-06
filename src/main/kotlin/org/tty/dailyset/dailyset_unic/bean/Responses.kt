@@ -1,8 +1,7 @@
 package org.tty.dailyset.dailyset_unic.bean
 
 import kotlinx.serialization.Serializable
-import org.tty.dailyset.dailyset_unic.bean.ResponseCodes.fail
-import org.tty.dailyset.dailyset_unic.bean.ResponseCodes.success
+import org.tty.dailyset.dailyset_unic.bean.ResponseCodes
 
 @Serializable
 data class Responses<T>(
@@ -21,6 +20,9 @@ data class Responses<T>(
          * default success response entity.
          */
         fun <T> ok(code: Int = ResponseCodes.success, message: String = "请求成功", data: T? = null): Responses<T>
+                = Responses(code, message, data)
+
+        fun <T> argError(code: Int = ResponseCodes.argError, message: String = "参数错误", data: T? = null)
                 = Responses(code, message, data)
     }
 }

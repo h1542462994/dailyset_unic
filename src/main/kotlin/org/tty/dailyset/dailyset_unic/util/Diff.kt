@@ -3,7 +3,7 @@ package org.tty.dailyset.dailyset_unic.util
 class Diff<TSource, TTarget, TKey>(
     val source: List<TSource>,
     val target: List<TTarget>,
-    val equality: Equality<TSource, TTarget, TKey>
+    private val equality: Equality<TSource, TTarget, TKey>
 ) {
     private var initialized: Boolean = false
     private var sameList: MutableList<Same<TSource, TTarget, TKey>> = mutableListOf()

@@ -11,7 +11,7 @@ import org.tty.dailyset.dailyset_unic.util.md5
 
 fun PythonUserInfo.toDailySetStudentInfoMeta(): DailySetStudentInfoMeta {
     return DailySetStudentInfoMeta(
-        uid = "#school.zjut.${this.studentNumber}" ,
+        metaUid = "#school.zjut.${this.studentNumber}" ,
         departmentName = this.departmentName,
         className = this.className,
         name = this.name,

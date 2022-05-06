@@ -10,7 +10,7 @@
 USE `dailyset_unic`;
 
 # init unic_daily_table
-INSERT INTO `dailyset_school_info_meta` (`uid`, `identifier`, `name`) VALUES ('#school.zjut', 'zjut', '浙江工业大学');
+INSERT INTO `dailyset_school_info_meta` (meta_uid, `identifier`, `name`) VALUES ('#school.zjut', 'zjut', '浙江工业大学');
 
 INSERT INTO `dailyset` (uid, type, source_version, matte_version, meta_version)
 VALUES ('#school.zjut.unic', 4, 1, 1, 1);

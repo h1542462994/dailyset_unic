@@ -9,9 +9,15 @@ import org.tty.dailyset.dailyset_unic.bean.enums.DailySetMetaType
 import org.tty.dailyset.dailyset_unic.bean.enums.DailySetSourceType
 import org.tty.dailyset.dailyset_unic.bean.enums.DailySetType
 import org.tty.dailyset.dailyset_unic.bean.interact.YearPeriod
-import org.tty.dailyset.dailyset_unic.bean.resp.CourseUpdateResult
+import org.tty.dailyset.dailyset_unic.bean.CourseUpdateResult
+import org.tty.dailyset.dailyset_unic.bean.DailySetUpdateItemCollection
+import org.tty.dailyset.dailyset_unic.bean.DailySetUpdateResult
+import org.tty.dailyset.dailyset_unic.bean.enums.DailySetDataType
+import org.tty.dailyset.dailyset_unic.intent.DailySetUpdateIntent
 import org.tty.dailyset.dailyset_unic.mapper.*
+import org.tty.dailyset.dailyset_unic.service.resource.DailySetCourseResourceAdapter
 import org.tty.dailyset.dailyset_unic.util.Diff
+import org.tty.dailyset.dailyset_unic.util.addNotNull
 import org.tty.dailyset.dailyset_unic.util.uuid
 import java.time.LocalDateTime
 
@@ -36,11 +42,14 @@ class DailySetService {
     @Autowired
     private lateinit var dailySetSourceLinksMapper: DailySetSourceLinksMapper
 
+    @Autowired
+    private lateinit var dailySetCourseResourceAdapter: DailySetCourseResourceAdapter
+
     private val logger = LoggerFactory.getLogger(DailySetService::class.java)
 
     fun updateOrInsertDailySetStudentInfoMeta(dailySetStudentInfoMeta: DailySetStudentInfoMeta) {
         val dailySetStudentInfoMetaExisted =
-            dailySetStudentInfoMetaMapper.findDailySetStudentInfoMetaByStudentId(dailySetStudentInfoMeta.uid)
+            dailySetStudentInfoMetaMapper.findDailySetStudentInfoMetaByMetaUid(dailySetStudentInfoMeta.metaUid)
 
         if (dailySetStudentInfoMetaExisted != null) {
             dailySetStudentInfoMetaMapper.updateDailySetStudentInfoMeta(dailySetStudentInfoMeta)
@@ -49,7 +58,7 @@ class DailySetService {
         }
 
         val schoolKey = "zjut"
-        val setUid = "#school.${schoolKey}.course.${dailySetStudentInfoMeta.uid}"
+        val setUid = "#school.${schoolKey}.course.${dailySetStudentInfoMeta.metaUid}"
         val dailySet = dailySetMapper.findDailySetByUid(setUid)
 
         if (dailySet != null) {
@@ -85,7 +94,7 @@ class DailySetService {
         dailySetMapper.addDailySet(dailySet)
 
         val schoolUid = "#school.${schoolKey}"
-        val schoolInfoMeta = dailySetSchoolInfoMetaMapper.findDailySetSchoolIntoMeta(schoolUid)
+        val schoolInfoMeta = dailySetSchoolInfoMetaMapper.findDailySetSchoolIntoMetaByMetaUid(schoolUid)
         requireNotNull(schoolInfoMeta) { "schoolInfoMeta is null" }
 
         dailySetMetaLinksMapper.addDailySetMetaLinks(
@@ -141,7 +150,11 @@ class DailySetService {
                     LocalDateTime.now().toStandardString()
                 }](${uid},${yearPeriod.year},${yearPeriod.periodCode.code})+${added.size}"
             )
-            logger.info("[${LocalDateTime.now().toStandardString()}](${uid},${yearPeriod.year},${yearPeriod.periodCode.code})+${added.size}")
+            logger.info(
+                "[${
+                    LocalDateTime.now().toStandardString()
+                }](${uid},${yearPeriod.year},${yearPeriod.periodCode.code})+${added.size}"
+            )
             return CourseUpdateResult(added.size, 0)
         } else {
             // 更新已有的课表
@@ -172,7 +185,11 @@ class DailySetService {
 
             withAdded(uid, added, currentVersion)
             withRemoved(uid, diff.removes, currentVersion)
-            logger.info("[${LocalDateTime.now().toStandardString()}](${uid},${yearPeriod.year},${yearPeriod.periodCode.code})+${added.size}-${diff.removes.size}~${diff.sames.size}")
+            logger.info(
+                "[${
+                    LocalDateTime.now().toStandardString()
+                }](${uid},${yearPeriod.year},${yearPeriod.periodCode.code})+${added.size}-${diff.removes.size}~${diff.sames.size}"
+            )
             return CourseUpdateResult(added.size, diff.removes.size)
         }
     }
@@ -255,6 +272,43 @@ class DailySetService {
 
         // save new links
         dailySetSourceLinksMapper.updateDailySetSourceLinksBatch(newLinks)
+    }
+
+    suspend fun getUpdates(intent: DailySetUpdateIntent): DailySetUpdateResult? {
+        val dailySet = dailySetMapper.findDailySetByUid(intent.dailySet.uid) ?: return null
+        return getUpdatesOfLocal(intent)
+    }
+
+    private suspend fun getUpdatesOfLocal(intent: DailySetUpdateIntent): DailySetUpdateResult? {
+        val dailySet = dailySetMapper.findDailySetByUid(intent.dailySet.uid) ?: return null
+
+        val updateItems = mutableListOf<DailySetUpdateItemCollection<*>>()
+
+        //region meta data update
+        //endregion
+
+        //region source data update
+        updateItems.addNotNull(withDailySetCourseUpdates(intent))
+        //endregion
+
+        return DailySetUpdateResult(
+            dailySet,
+            updateItems = updateItems
+        )
+
+    }
+
+    private suspend fun withDailySetCourseUpdates(intent: DailySetUpdateIntent): DailySetUpdateItemCollection<DailySetCourse>? {
+        val dailySetCourseUpdateItems = DailySetUpdateItemCollection(
+            type = DailySetDataType.Source.value,
+            subType = DailySetSourceType.Course.value,
+            updates = dailySetCourseResourceAdapter.getUpdateItems(intent.dailySet.uid, intent.dailySet.sourceVersion)
+        )
+        return if (dailySetCourseUpdateItems.updates.isNotEmpty()) {
+            dailySetCourseUpdateItems
+        } else {
+            null
+        }
     }
 
 }

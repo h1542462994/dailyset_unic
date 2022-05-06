@@ -8,7 +8,8 @@ import org.tty.dailyset.dailyset_unic.bean.entity.DailySetSourceLinks
 
 @Mapper
 interface DailySetSourceLinksMapper {
-    @Insert("""
+    @Insert(
+        """
         <script>
             insert into dailyset_source_links(
                 dailyset_uid,
@@ -30,10 +31,12 @@ interface DailySetSourceLinksMapper {
                 )
             </foreach>
         </script>
-    """)
+    """
+    )
     fun addDailySetSourceLinksBatch(links: List<DailySetSourceLinks>): Int
 
-    @Update("""
+    @Update(
+        """
         <script>
             <foreach collection = "links" item = "link" separator = ";">
                 update dailyset_source_links
@@ -48,17 +51,35 @@ interface DailySetSourceLinksMapper {
             </foreach>
             ;
         </script>
-    """)
+    """
+    )
     fun updateDailySetSourceLinksBatch(links: List<DailySetSourceLinks>): Int
 
 
-    @Select("""
+    @Select(
+        """
         <script>
             select * from dailyset_source_links where dailyset_id = #{dailySetUid} and source_type = #{sourceType}
             and source_uid in <foreach collection="sourceUids" item="sourceUid" open="(" separator="," close=")">
                 #{sourceUid}
             </foreach>
         </script>
+    """
+    )
+    fun findAllDailySetSourceLinksByDailySetUidAndSourceTypeAndSourceUidBatch(
+        dailySetUid: String,
+        sourceType: Int,
+        sourceUids: List<String>
+    ): List<DailySetSourceLinks>
+
+    @Select("""
+        select * from dailyset_source_links where dailyset_uid = #{dailySetUid} and source_type = #{sourceType} and (
+            insert_version > #{oldVersion} or update_version > #{oldVersion} or remove_version > #{oldVersion}
+        )
     """)
-    fun findAllDailySetSourceLinksByDailySetUidAndSourceTypeAndSourceUidBatch(dailySetUid: String, sourceType: Int, sourceUids: List<String>): List<DailySetSourceLinks>
+    fun findAllDailySetSourceLinksByDailySetUidAndSourceTypeAndVersionLargerThan(
+        dailySetUid: String,
+        sourceType: Int,
+        oldVersion: Int
+    ): List<DailySetSourceLinks>
 }

@@ -1,8 +1,14 @@
-### get_course
 
-POST http://{{location}}/get_course
-Content-Type: application/x-www-form-urlencoded
+### dailyset/update
 
-uid=201806061201&password=~~&year=2018&term=1
+POST http://{{location}}/dailyset/update
+Content-Type: application/json
 
-###
+{
+    "ticketId": "ed920c54-ce39-4d04-a64d-5c7b8e09d5dd",
+    "uid": "#school.zjut.course.201806061201",
+    "type": 2,
+    "sourceVersion": 0,
+    "matteVersion": 0,
+    "metaVersion": 0
+}
