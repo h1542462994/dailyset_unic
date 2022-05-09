@@ -16,21 +16,21 @@ INSERT INTO `dailyset` (uid, type, source_version, matte_version, meta_version)
 VALUES ('#school.zjut.unic', 4, 1, 1, 1);
 
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
-VALUES ('#school.zjut.2018-1', 1, '2018-9-1', '2018-12-31', '2018-2019上学期', '', 2018, 1);
+VALUES ('#school.zjut.2018-1', 1, '2018-9-24', '2019-1-27', '2018-2019上学期', '', 2018, 1);
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
-VALUES ('#school.zjut.2018-2', 1, '2019-3-1', '2019-6-30', '2018-2019下学期', '', 2018, 7);
+VALUES ('#school.zjut.2018-2', 1, '2019-2-25', '2019-6-30', '2018-2019下学期', '', 2018, 7);
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
-VALUES ('#school.zjut.2019-1', 1, '2019-9-1', '2019-12-31', '2019-2020上学期', '', 2019, 1);
+VALUES ('#school.zjut.2019-1', 1, '2019-9-16', '2020-1-19', '2019-2020上学期', '', 2019, 1);
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
-VALUES ('#school.zjut.2019-2', 1, '2020-3-1', '2020-6-30', '2019-2020下学期', '', 2019, 7);
+VALUES ('#school.zjut.2019-2', 1, '2020-2-17', '2020-6-28', '2019-2020下学期', '', 2019, 7);
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
-VALUES ('#school.zjut.2020-1', 1, '2020-9-1', '2020-12-31', '2020-2021上学期', '', 2020, 1);
+VALUES ('#school.zjut.2020-1', 1, '2020-9-28', '2021-1-31', '2020-2021上学期', '', 2020, 1);
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
-VALUES ('#school.zjut.2020-2', 1, '2021-3-1', '2021-6-30', '2020-2021下学期', '', 2020, 7);
+VALUES ('#school.zjut.2020-2', 1, '2021-3-1', '2021-7-4', '2020-2021下学期', '', 2020, 7);
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
-VALUES ('#school.zjut.2021-1', 1, '2021-9-1', '2021-12-31', '2021-2022上学期', '', 2021, 1);
+VALUES ('#school.zjut.2021-1', 1, '2021-9-13', '2021-1-16', '2021-2022上学期', '', 2021, 1);
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
-VALUES ('#school.zjut.2021-2', 1, '2022-3-1', '2022-6-30', '2021-2022下学期', '', 2021, 7);
+VALUES ('#school.zjut.2021-2', 1, '2022-2-21', '2022-6-26', '2021-2022下学期', '', 2021, 7);
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
 VALUES ('#school.zjut.2022-1', 1, '2022-9-1', '2022-12-21', '2022-2023上学期', '', 2022, 1);
 INSERT INTO `dailyset_duration` (source_uid, type, start_date, end_date, name, tag, binding_year, binding_period_code)
