@@ -7,10 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.test.context.TestPropertySource
 import org.tty.dailyset.dailyset_unic.component.TestBeanFactory
-import org.tty.dailyset.dailyset_unic.grpc.*
+import org.tty.dailyset.dailyset_unic.grpc.HelloCoroutineGrpc
+import org.tty.dailyset.dailyset_unic.grpc.HelloGrpc
 import org.tty.dailyset.dailyset_unic.grpc.HelloGrpc.HelloBlockingStub
 import org.tty.dailyset.dailyset_unic.grpc.HelloProtoBuilders.HelloRequest
-import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketRequest
+import org.tty.dailyset.dailyset_unic.grpc.HelloRequest
+import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketBindRequest
+import org.tty.dailyset.dailyset_unic.grpc.TicketServiceCoroutineGrpc
 
 @SpringBootTest(classes = [DailysetUnicApplicationTests::class, TestBeanFactory::class])
 @TestPropertySource("classpath:application-test.properties")
@@ -59,7 +62,7 @@ class DailysetUnicApplicationTests {
         val password = "~~"
         val ticketCoroutineStub = TicketServiceCoroutineGrpc.newStub(testBeanFactory.getChannel())
         runBlocking {
-            val result = ticketCoroutineStub.bind(request = TicketRequest {
+            val result = ticketCoroutineStub.bind(request = TicketBindRequest {
                 this.uid = uid
                 this.password = password
             })

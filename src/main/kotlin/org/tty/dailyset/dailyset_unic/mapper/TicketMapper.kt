@@ -21,7 +21,10 @@ interface TicketMapper {
      * get available tickets, status see [UnicTicketStatus]
      */
     @Select("select * from ticket where status in (0, 1, 2)")
-    fun findUnicTicketsByAvailableStatus(): List<UnicTicket>
+    fun findAllUnicTicketByAvailableStatus(): List<UnicTicket>
+
+    @Select("select * from ticket where uid = #{uid} and status in (1, 2)")
+    fun findAllUnicTicketByUidAndOkStatus(uid: String): List<UnicTicket>
 
     @Update("""
         <script>

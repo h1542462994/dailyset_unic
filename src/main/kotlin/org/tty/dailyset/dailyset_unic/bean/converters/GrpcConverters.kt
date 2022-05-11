@@ -9,7 +9,7 @@ import org.tty.dailyset.dailyset_unic.grpc.StudentInfo
 import org.tty.dailyset.dailyset_unic.grpc.Ticket
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.StudentInfo
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.Ticket
-import org.tty.dailyset.dailyset_unic.intent.MessageSendIntent
+import org.tty.dailyset.dailyset_unic.bean.MessageIntent
 
 fun org.tty.dailyset.dailyset_unic.bean.entity.UnicTicket.toGrpcTicket(): Ticket {
     return Ticket {
@@ -38,7 +38,7 @@ fun DailySetStudentInfoMeta.toGrpcStudentInfo(): StudentInfo {
         this.grade = this@toGrpcStudentInfo.grade
     }
 }
-fun MessageSendIntent.toGrpcMessage(): MessageResponse {
+fun MessageIntent.toGrpcMessage(): MessageResponse {
     return MessageResponse {
         topic = this@toGrpcMessage.topic
         referer = this@toGrpcMessage.referer

@@ -11,6 +11,7 @@ import org.tty.dailyset.dailyset_unic.bean.entity.DailySet
 import org.tty.dailyset.dailyset_unic.bean.req.DailySetInfosReq
 import org.tty.dailyset.dailyset_unic.bean.req.DailySetUpdateReq
 import org.tty.dailyset.dailyset_unic.component.IntentFactory
+import org.tty.dailyset.dailyset_unic.intent.DailySetInfosIntent
 import org.tty.dailyset.dailyset_unic.service.DailySetService
 
 @RestController
@@ -23,12 +24,12 @@ class DailySetController {
     private lateinit var intentFactory: IntentFactory
 
     @PostMapping("/dailyset/info")
-    suspend fun dailySetInfo(@RequestBody dailySetInfosReq: DailySetInfosReq): Responses<List<DailySet>> {
-        if (!dailySetInfosReq.verify()) {
+    suspend fun dailySetInfo(ticketId: String?): Responses<List<DailySet>> {
+        if (ticketId == null) {
             return Responses.argError()
         }
 
-        val intent = intentFactory.createDailySetInfosIntent(dailySetInfosReq)
+        val intent = DailySetInfosIntent(ticketId)
         val data = dailySetService.getDailySetInfos(intent)
         return if (data == null) {
             Responses.fail(code = ResponseCodes.ticketNotExist, "ticket不存在")

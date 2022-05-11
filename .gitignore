@@ -36,3 +36,5 @@ out/
 ### VS Code ###
 .vscode/
 src/main/resources/result.json
+
+src/main/resources/application-prod.properties

@@ -1,5 +1,6 @@
 package org.tty.dailyset.dailyset_unic.service
 
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Lazy
 import org.springframework.stereotype.Component
@@ -38,19 +39,30 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
     @Autowired
     private lateinit var dailySetStudentInfoMetaMapper: DailySetStudentInfoMetaMapper
 
+    private val logger = LoggerFactory.getLogger(TicketService::class.java)
+
     override suspend fun bind(request: TicketBindRequest): TicketBindResponse {
+        logger.debug("have a bind request: ${request.uid}")
         val ticketId = uuid()
         val encryptedPassword = encryptProvider.aesEncrypt(request.uid, request.password)!!
         val ticket = UnicTicket(ticketId, request.uid, encryptedPassword, status = UnicTicketStatus.Initialized)
         val result = unicTicketMapper.addUnicTicket(ticket)
-        return if (result > 0) {
-            pushTaskOfNewTicket(ticket)
-            TicketBindResponse {
-                success = true
-                this.ticket = ticket.toGrpcTicket()
+        try {
+            return if (result > 0) {
+                pushTaskOfNewTicket(ticket)
+                TicketBindResponse {
+                    success = true
+                    this.ticket = ticket.toGrpcTicket()
+                }
+            } else {
+                TicketBindResponse {
+                    success = false
+                    this.ticket = grpcBeanFactory.emptyTicket()
+                }
             }
-        } else {
-            TicketBindResponse {
+        } catch (e: Exception) {
+            logger.error("服务发生了未知异常", e)
+            return TicketBindResponse {
                 success = false
                 this.ticket = grpcBeanFactory.emptyTicket()
             }
@@ -100,8 +112,12 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
     }
 
     @DbDirect
-    fun findUnicTicketsByAvailableStatus(): List<UnicTicket> {
-        return unicTicketMapper.findUnicTicketsByAvailableStatus()
+    fun findAllUnicTicketByAvailableStatus(): List<UnicTicket> {
+        return unicTicketMapper.findAllUnicTicketByAvailableStatus()
+    }
+
+    fun findAllUnicTicketByUidAndOkStatus(uid: String): List<UnicTicket> {
+        return unicTicketMapper.findAllUnicTicketByUidAndOkStatus(uid)
     }
 
     fun updateTicketStatusBatch(unicTickets: List<UnicTicket>): Int {

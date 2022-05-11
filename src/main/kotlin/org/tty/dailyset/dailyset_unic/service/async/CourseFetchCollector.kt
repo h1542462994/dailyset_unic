@@ -12,9 +12,11 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import org.tty.dailyset.dailyset_unic.bean.MessageIntent
 import org.tty.dailyset.dailyset_unic.bean.Responses
 import org.tty.dailyset.dailyset_unic.bean.converters.*
 import org.tty.dailyset.dailyset_unic.bean.entity.UnicTicket
+import org.tty.dailyset.dailyset_unic.bean.enums.MessageTopics
 import org.tty.dailyset.dailyset_unic.bean.enums.PeriodCode
 import org.tty.dailyset.dailyset_unic.bean.enums.PythonInteractActionType
 import org.tty.dailyset.dailyset_unic.bean.enums.UnicTicketStatus
@@ -25,9 +27,12 @@ import org.tty.dailyset.dailyset_unic.bean.interact.PythonResponseCode.unknown
 import org.tty.dailyset.dailyset_unic.bean.resp.PythonCourseResp
 import org.tty.dailyset.dailyset_unic.component.EncryptProvider
 import org.tty.dailyset.dailyset_unic.component.EnvironmentVars
+import org.tty.dailyset.dailyset_unic.intent.MessagePostIntent
 import org.tty.dailyset.dailyset_unic.service.*
+import org.tty.dailyset.dailyset_unic.util.Diff
 import java.io.BufferedReader
 import java.io.File
+import java.io.InputStream
 import java.nio.charset.Charset
 import java.time.LocalDateTime
 import java.util.*
@@ -105,7 +110,7 @@ class CourseFetchCollector {
         @Suppress("FoldInitializerAndIfToElvis")
         if (decryptedPassword == null) {
             // TODO: push message: password failure
-            messageService.sendTicketMessage(unicTicket, 1, "password failure")
+            messageService.sendTicketMessage(unicTicket, MessageTopics.passwordFail, "password failure")
             return false
         }
         val yearPeriod = preferenceService.realYearPeriodNow
@@ -116,18 +121,19 @@ class CourseFetchCollector {
         //val result = mockGetCourseWithFile()
         return when (result.code) {
             PythonResponseCode.success -> {
-                messageService.sendTicketMessage(unicTicket, 0, "get initialize info success.")
                 doPostTask(unicTicket, actionType, result, currentVersion)
                 updateTickStatus(unicTicket.ticketId, UnicTicketStatus.Checked)
+                messageService.sendTicketMessage(unicTicket, MessageTopics.ok, "get initialize info success.")
                 false
             }
             PythonResponseCode.loginFail -> {
-                messageService.sendTicketMessage(unicTicket, 1, "login failure.")
+
                 updateTickStatus(unicTicket.ticketId, UnicTicketStatus.LoginFailure)
+                messageService.sendTicketMessage(unicTicket, MessageTopics.loginFail, "login failure.")
                 false
             }
             else -> {
-                messageService.sendTicketMessage(unicTicket, 1, "unknown error. at retryCount: $retryCount")
+                messageService.sendTicketMessage(unicTicket, MessageTopics.unknownError, "unknown error. at retryCount: $retryCount")
                 val next = retryCount < preferenceService.unicCourseFetchRetryTimes
                 if (!next) {
                     updateTickStatus(unicTicket.ticketId, UnicTicketStatus.UnknownFailure)
@@ -138,7 +144,7 @@ class CourseFetchCollector {
     }
 
     private suspend fun doScheduleTask(currentVersion: Int) {
-        val tickets = ticketService.findUnicTicketsByAvailableStatus()
+        val tickets = ticketService.findAllUnicTicketByAvailableStatus()
         val group = tickets.groupBy { it.uid }
 
         group.forEach { (t, u) ->
@@ -209,6 +215,21 @@ class CourseFetchCollector {
 
         ticketService.updateTicketStatusBatch(updatedTickets)
 
+        // send the message if ticket status changed.
+        val diff = Diff<UnicTicket, UnicTicket, String> {
+            source = tickets
+            target = updatedTickets
+            sourceKeySelector = { it.ticketId }
+            targetKeySelector = { it.ticketId }
+        }
+
+        val changedTickets = diff.sames.filter {
+            it.source.status != it.target.status
+        }.map { it.target }
+
+        changedTickets.forEach {
+            messageService.sendTicketMessage(it, 0, "status changed to: ${it.status}")
+        }
 
         if (success) {
             doPostTask(successTicket!!, actionType = PythonInteractActionType.GetCourse, result = result, currentVersion = currentVersion)
@@ -245,8 +266,21 @@ class CourseFetchCollector {
 
         logger.info("<<doPostTask(${unicTicket.uid}):${actionType.value}+$addCount-$removeCount")
 
-    }
+        // send the message
+        val uid = unicTicket.uid
+        val tickets = ticketService.findAllUnicTicketByUidAndOkStatus(uid)
 
+        messageService.sendTicketMessage(MessagePostIntent(
+            tickets.map { it.ticketId },
+            MessageIntent(
+                topic = MessageTopics.dailySetUnicCourse,
+                referer = MessageTopics.referer,
+                code = MessageTopics.ok,
+                content = "课程表信息已经修改."
+            )
+        ))
+
+    }
 
     private suspend fun callPythonScriptGetCourse(uid: String, password: String, actionType: PythonInteractActionType, year: Int, term: Int): Responses<PythonCourseResp>
     = withContext(Dispatchers.IO) {
@@ -286,14 +320,4 @@ class CourseFetchCollector {
         return@withContext result
     }
 
-    @Value("classpath:result.json")
-    private lateinit var resultFile: File
-
-    private suspend fun mockGetCourseWithFile(): Responses<PythonCourseResp> = withContext(Dispatchers.IO) {
-        val json = Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-        }
-        return@withContext json.decodeFromString<Responses<PythonCourseResp>>(resultFile.readText())
-    }
 }
