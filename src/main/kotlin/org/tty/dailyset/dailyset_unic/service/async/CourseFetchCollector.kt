@@ -115,6 +115,8 @@ class CourseFetchCollector {
         }
         val yearPeriod = preferenceService.realYearPeriodNow
 
+        updateTickStatus(unicTicket.ticketId, UnicTicketStatus.Initialized)
+
         // call the python interact service and get the response
         val result = callPythonScriptGetCourse(unicTicket.uid, decryptedPassword, actionType, yearPeriod.year, yearPeriod.periodCode.toTerm())
         // TODO: debug only.

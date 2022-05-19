@@ -24,5 +24,13 @@ class TicketGrpcService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
         return ticketService.query(request)
     }
 
+    override suspend fun unbind(request: TicketUnbindRequest): TicketUnbindResponse {
+        return ticketService.unbind(request)
+    }
+
+    override suspend fun forceFetch(request: TicketForceFetchRequest): TicketForceFetchResponse {
+        return ticketService.forceFetch(request)
+    }
+
 
 }

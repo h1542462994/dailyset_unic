@@ -13,6 +13,8 @@ service TicketService {
     rpc query(TicketQueryRequest) returns (TicketQueryResponse) {}
     // unbind ticket.
     rpc unbind(TicketUnbindRequest) returns (TicketUnbindResponse) {}
+    // unbind ticket.
+    rpc forceFetch(TicketForceFetchRequest) returns (TicketForceFetchResponse) {}
 }
 
 message TicketBindRequest {
@@ -41,6 +43,14 @@ message TicketUnbindRequest {
 }
 
 message TicketUnbindResponse {
+    bool success = 1;
+}
+
+message TicketForceFetchRequest {
+    string ticketId = 1;
+}
+
+message TicketForceFetchResponse {
     bool success = 1;
 }
 

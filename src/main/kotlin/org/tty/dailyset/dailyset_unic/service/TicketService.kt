@@ -14,6 +14,7 @@ import org.tty.dailyset.dailyset_unic.component.EncryptProvider
 import org.tty.dailyset.dailyset_unic.component.GrpcBeanFactory
 import org.tty.dailyset.dailyset_unic.grpc.*
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketBindResponse
+import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketForceFetchResponse
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketQueryResponse
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketUnbindResponse
 import org.tty.dailyset.dailyset_unic.mapper.DailySetStudentInfoMetaMapper
@@ -114,6 +115,19 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
         logger.debug("have a unbind request: ${ticketExisted.uid}")
         unicTicketMapper.removeUnicTicketByTicketId(ticketId)
         return TicketUnbindResponse {
+            success = true
+        }
+    }
+
+    override suspend fun forceFetch(request: TicketForceFetchRequest): TicketForceFetchResponse {
+        val ticketId = request.ticketId
+        val ticketExisted = unicTicketMapper.findUnicTicketByTicketId(ticketId)
+            ?: return TicketForceFetchResponse {
+                success = false
+            }
+
+        pushTaskOfNewTicket(ticketExisted)
+        return TicketForceFetchResponse {
             success = true
         }
     }
