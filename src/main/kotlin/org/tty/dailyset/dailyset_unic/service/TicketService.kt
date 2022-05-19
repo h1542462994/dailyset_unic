@@ -15,6 +15,7 @@ import org.tty.dailyset.dailyset_unic.component.GrpcBeanFactory
 import org.tty.dailyset.dailyset_unic.grpc.*
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketBindResponse
 import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketQueryResponse
+import org.tty.dailyset.dailyset_unic.grpc.TicketProtoBuilders.TicketUnbindResponse
 import org.tty.dailyset.dailyset_unic.mapper.DailySetStudentInfoMetaMapper
 import org.tty.dailyset.dailyset_unic.mapper.TicketMapper
 import org.tty.dailyset.dailyset_unic.service.async.CourseFetchCollector
@@ -70,6 +71,7 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
     }
 
     override suspend fun query(request: TicketQueryRequest): TicketQueryResponse {
+
         val ticketId = request.ticketId
         val ticketExisted = unicTicketMapper.findUnicTicketByTicketId(ticketId)
             ?: return TicketQueryResponse {
@@ -79,7 +81,7 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
                 studentInfo = grpcBeanFactory.emptyStudentInfo()
             }
 
-
+        logger.debug("have a query request: ${ticketExisted.uid}")
         val studentUid = "#school.zjut.${ticketExisted.uid}"
         val studentInfo = dailySetStudentInfoMetaMapper.findDailySetStudentInfoMetaByMetaUid(studentUid)
             ?: return TicketQueryResponse {
@@ -99,6 +101,20 @@ class TicketService: TicketServiceCoroutineGrpc.TicketServiceImplBase() {
             } else {
                 grpcBeanFactory.emptyStudentInfo()
             }
+        }
+    }
+
+    override suspend fun unbind(request: TicketUnbindRequest): TicketUnbindResponse {
+        val ticketId = request.ticketId
+        val ticketExisted = unicTicketMapper.findUnicTicketByTicketId(ticketId)
+            ?: return TicketUnbindResponse {
+                success = false
+            }
+
+        logger.debug("have a unbind request: ${ticketExisted.uid}")
+        unicTicketMapper.removeUnicTicketByTicketId(ticketId)
+        return TicketUnbindResponse {
+            success = true
         }
     }
 

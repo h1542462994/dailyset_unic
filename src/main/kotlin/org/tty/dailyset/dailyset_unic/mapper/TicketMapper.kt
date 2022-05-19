@@ -1,5 +1,6 @@
 package org.tty.dailyset.dailyset_unic.mapper
 
+import org.apache.ibatis.annotations.Delete
 import org.apache.ibatis.annotations.Insert
 import org.apache.ibatis.annotations.Mapper
 import org.apache.ibatis.annotations.Select
@@ -16,6 +17,9 @@ interface TicketMapper {
 
     @Select("select * from ticket where ticket_id = #{ticketId}")
     fun findUnicTicketByTicketId(ticketId: String): UnicTicket?
+
+    @Delete("delete from ticket where ticket_id = #{ticketId}")
+    fun removeUnicTicketByTicketId(ticketId: String): Int
 
     /**
      * get available tickets, status see [UnicTicketStatus]

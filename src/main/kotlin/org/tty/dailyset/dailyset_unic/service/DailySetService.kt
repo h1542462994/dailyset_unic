@@ -246,18 +246,17 @@ class DailySetService {
         }
 
         if (diff.sames.isNotEmpty()) {
-            val binds = diff.sames.map {
-                DailySetSourceLinks(
-                    dailySetUid = "#school.zjut.course.${uid}",
-                    sourceType = DailySetSourceType.Course.value,
-                    sourceUid = it.source.sourceUid,
-                    insertVersion = currentVersion,
-                    updateVersion = 0,
-                    removeVersion = 0,
-                    lastTick = LocalDateTime.now()
+            val oldLinks = dailySetSourceLinksMapper.findAllDailySetSourceLinksByDailySetUidAndSourceTypeAndSourceUidBatch(
+                dailySetUid = "#school.zjut.course.${uid}",
+                sourceType = DailySetSourceType.Course.value,
+                sourceUids = diff.sames.map { it.source.sourceUid }
+            )
+            val newLinks = oldLinks.map {
+                it.copy(
+                    updateVersion = currentVersion
                 )
             }
-            dailySetSourceLinksMapper.addDailySetSourceLinksBatch(binds)
+            dailySetSourceLinksMapper.updateDailySetSourceLinksBatch(newLinks)
         }
     }
 

@@ -11,6 +11,8 @@ service TicketService {
     rpc bind(TicketBindRequest) returns (TicketBindResponse) {}
     // query ticket
     rpc query(TicketQueryRequest) returns (TicketQueryResponse) {}
+    // unbind ticket.
+    rpc unbind(TicketUnbindRequest) returns (TicketUnbindResponse) {}
 }
 
 message TicketBindRequest {
@@ -32,6 +34,14 @@ message TicketQueryResponse {
     string message = 2;
     Ticket ticket = 3;
     StudentInfo studentInfo = 4;
+}
+
+message TicketUnbindRequest {
+    string ticketId = 1;
+}
+
+message TicketUnbindResponse {
+    bool success = 1;
 }
 
 message Ticket {
