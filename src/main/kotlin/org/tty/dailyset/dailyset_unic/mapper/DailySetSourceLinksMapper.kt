@@ -39,13 +39,14 @@ interface DailySetSourceLinksMapper {
         """
         <script>
             <foreach collection = "links" item = "link" separator = ";">
-                update dailyset_source_links
-                set
+                update dailyset_source_links 
+                set 
+                    insert_version = #{link.insertVersion},
                     update_version = #{link.updateVersion},
                     remove_version = #{link.removeVersion},
                     last_tick = #{link.lastTick}
-                where
-                    dailyset_id = #{link.dailysetId}
+                where 
+                    dailyset_uid = #{link.dailySetUid}
                     and source_type = #{link.sourceType}
                     and source_uid = #{link.sourceUid}
             </foreach>
@@ -59,7 +60,7 @@ interface DailySetSourceLinksMapper {
     @Select(
         """
         <script>
-            select * from dailyset_source_links where dailyset_id = #{dailySetUid} and source_type = #{sourceType}
+            select * from dailyset_source_links where dailyset_uid = #{dailySetUid} and source_type = #{sourceType} 
             and source_uid in <foreach collection="sourceUids" item="sourceUid" open="(" separator="," close=")">
                 #{sourceUid}
             </foreach>

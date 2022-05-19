@@ -10,7 +10,7 @@ import org.tty.dailyset.dailyset_unic.bean.entity.DailySetSourceLinks
 @Mapper
 interface DailySetMetaLinksMapper {
 
-    @Select("select * from dailyset_meta_links where dailyset_id = #{dailySetId} and meta_type = #{metaType}")
+    @Select("select * from dailyset_meta_links where dailyset_uid = #{dailySetUid} and meta_type = #{metaType}")
     fun findAllDailySetMetaLinksByDailySetUidAndMetaType(dailySetUid: String, metaType: Int): List<DailySetMetaLinks>
 
     @Insert("""
