@@ -123,8 +123,8 @@ class CourseFetchCollector {
         //val result = mockGetCourseWithFile()
         return when (result.code) {
             PythonResponseCode.success -> {
-                doPostTask(unicTicket, actionType, result, currentVersion)
                 updateTickStatus(unicTicket.ticketId, UnicTicketStatus.Checked)
+                doPostTask(unicTicket, actionType, result, currentVersion)
                 messageService.sendTicketMessage(unicTicket, MessageTopics.ok, "get initialize info success.")
                 false
             }
